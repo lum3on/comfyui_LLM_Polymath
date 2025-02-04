@@ -1,0 +1,1748 @@
+{
+  "last_node_id": 74,
+  "last_link_id": 77,
+  "nodes": [
+    {
+      "id": 44,
+      "type": "CLIPTextEncode",
+      "pos": [
+        1700.354736328125,
+        1863.136962890625
+      ],
+      "size": [
+        210,
+        95.99999237060547
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 39
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        ""
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 45,
+      "type": "BasicGuider",
+      "pos": [
+        2040.35498046875,
+        1843.136962890625
+      ],
+      "size": [
+        196.9998779296875,
+        62.66668701171875
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 40,
+          "slot_index": 0
+        },
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "link": 41,
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            47
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicGuider",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 46,
+      "type": "VAELoader",
+      "pos": [
+        1190.354736328125,
+        1623.1368408203125
+      ],
+      "size": [
+        315,
+        58
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            45
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "ae.safetensors"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 47,
+      "type": "ModelSamplingFlux",
+      "pos": [
+        1910.354736328125,
+        1603.1368408203125
+      ],
+      "size": [
+        321.8402404785156,
+        122
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 42
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "height"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            40,
+            43
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ModelSamplingFlux",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        0.5,
+        0.3,
+        1024,
+        1024
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 48,
+      "type": "BasicScheduler",
+      "pos": [
+        1930.3551025390625,
+        1273.1373291015625
+      ],
+      "size": [
+        281.2428283691406,
+        106
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 43,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            49
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "beta",
+        27,
+        1
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 50,
+      "type": "RandomNoise",
+      "pos": [
+        1570.354736328125,
+        1293.1373291015625
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise_seed",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "noise_seed"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            46
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        230950897054388,
+        "randomize"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 51,
+      "type": "KSamplerSelect",
+      "pos": [
+        1940.3551025390625,
+        1453.13720703125
+      ],
+      "size": [
+        268.2277526855469,
+        58
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            48
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "ipndm"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 53,
+      "type": "DualCLIPLoader",
+      "pos": [
+        1190.354736328125,
+        1443.13720703125
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            39,
+            50
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DualCLIPLoader",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "ViT-L-14-TEXT-detail-improved-hiT-GmP-TE-only-HF.safetensors",
+        "t5xxl_fp16.safetensors",
+        "flux",
+        "default"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 54,
+      "type": "CLIPTextEncodeFlux",
+      "pos": [
+        1560.354736328125,
+        1823.1368408203125
+      ],
+      "size": [
+        404.7751770019531,
+        98
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 50
+        },
+        {
+          "name": "clip_l",
+          "type": "STRING",
+          "link": 76,
+          "widget": {
+            "name": "clip_l"
+          }
+        },
+        {
+          "name": "t5xxl",
+          "type": "STRING",
+          "link": 77,
+          "widget": {
+            "name": "t5xxl"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            41
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncodeFlux",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "",
+        "",
+        2.5
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 57,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        1550.354736328125,
+        1443.13720703125
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 52
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            42
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "FLUXX\\Glosssteel\\glosssteel_v1_rank16_bf16-step01500.safetensors",
+        1.1
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 59,
+      "type": "EmptyLatentImage",
+      "pos": [
+        1910.354736328125,
+        1443.13720703125
+      ],
+      "size": [
+        315,
+        106
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "link": null,
+          "widget": {
+            "name": "height"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        512,
+        512,
+        4
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 61,
+      "type": "LoraLoaderModelOnly",
+      "pos": [
+        1530.354736328125,
+        1603.1368408203125
+      ],
+      "size": [
+        372.65362548828125,
+        93.13933563232422
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 54
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            52
+          ],
+          "slot_index": 0,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraLoaderModelOnly",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "Milan\\Milan_allv1_rank64_bf16-step00600.safetensors",
+        1.12
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 58,
+      "type": "UNETLoader",
+      "pos": [
+        1190.354736328125,
+        1303.1373291015625
+      ],
+      "size": [
+        315,
+        82
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            54
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "flux\\flux1-dev-fp8 (1).safetensors",
+        "default"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 49,
+      "type": "VAEDecode",
+      "pos": [
+        2331.6787109375,
+        1503.981201171875
+      ],
+      "size": [
+        210,
+        46
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 44
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            53
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 60,
+      "type": "SaveImage",
+      "pos": [
+        2669.99267578125,
+        1302.5347900390625
+      ],
+      "size": [
+        415.7328186035156,
+        562.7559814453125
+      ],
+      "flags": {},
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 53
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "SaveImage",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "realismflux/basegimg/norm00"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 26,
+      "type": "polymath_chat",
+      "pos": [
+        1593.4830322265625,
+        725.84716796875
+      ],
+      "size": [
+        428.3999938964844,
+        492.8005676269531
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": 56,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            33,
+            36
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "",
+        "",
+        214,
+        "fixed",
+        "gpt-4o",
+        "ultimate photo analyzer",
+        false,
+        true,
+        5,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#87c99d",
+      "bgcolor": "#000000",
+      "shape": 2
+    },
+    {
+      "id": 31,
+      "type": "LoadImage",
+      "pos": [
+        1202.8848876953125,
+        718.7387084960938
+      ],
+      "size": [
+        365.2551574707031,
+        495.4770202636719
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            55
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "yo9otatara_a_whale_flying_through_a_city_by_night_--ar_169_--_83a162f8-5bc3-4de1-b5eb-441b26e3a1a1_1.png",
+        "image"
+      ],
+      "color": "#87c99d",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 62,
+      "type": "Fast Groups Bypasser (rgthree)",
+      "pos": [
+        250,
+        1200
+      ],
+      "size": [
+        252,
+        106
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "OPT_CONNECTION",
+          "type": "*",
+          "links": null
+        }
+      ],
+      "properties": {
+        "matchColors": "",
+        "matchTitle": "",
+        "showNav": true,
+        "sort": "position",
+        "customSortAlphabet": "",
+        "toggleRestriction": "default"
+      }
+    },
+    {
+      "id": 52,
+      "type": "SamplerCustomAdvanced",
+      "pos": [
+        2310.35498046875,
+        1303.1373291015625
+      ],
+      "size": [
+        325.8651123046875,
+        571.4815063476562
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "noise",
+          "type": "NOISE",
+          "link": 46,
+          "slot_index": 0
+        },
+        {
+          "name": "guider",
+          "type": "GUIDER",
+          "link": 47,
+          "slot_index": 1
+        },
+        {
+          "name": "sampler",
+          "type": "SAMPLER",
+          "link": 48,
+          "slot_index": 2
+        },
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "link": 49,
+          "slot_index": 3
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": null,
+          "slot_index": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            44
+          ],
+          "slot_index": 0,
+          "shape": 3
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 41,
+      "type": "polymath_chat",
+      "pos": [
+        1211.9483642578125,
+        -591.5590209960938
+      ],
+      "size": [
+        428.3999938964844,
+        496.6712341308594
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 37,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "",
+        "",
+        1925,
+        "randomize",
+        "gpt-4o",
+        "Video-Prompter",
+        false,
+        false,
+        5,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#c1a12f",
+      "bgcolor": "#000000",
+      "shape": 2
+    },
+    {
+      "id": 39,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2048.65576171875,
+        593.7213134765625
+      ],
+      "size": [
+        319.52960205078125,
+        616.8674926757812
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 36,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            58
+          ],
+          "shape": 6,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Dynamic tracking shot, a large whale suspended mid-air amidst towering urban architecture, enveloping a bustling cityscape similar to New York. The whale's white and dark gray-blue skin textures seamlessly harmonize with the earthy red and brown brick buildings. Illuminated by overcast natural light, streetlights offer a gentle glow. The traffic light with a glowing red signal stands in the right foreground, asserting urban normalcy contrasted by the surreal marine presence. Cinematic absurdity captures awe and whimsy, narrating nature’s improbable dance with city life."
+      ],
+      "color": "#c98787",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 35,
+      "type": "polymath_chat",
+      "pos": [
+        2391.056396484375,
+        711.9054565429688
+      ],
+      "size": [
+        428.3999938964844,
+        496.6712341308594
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 33,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            66
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "",
+        "",
+        1925,
+        "randomize",
+        "gpt-4o",
+        "flux prompt architect",
+        false,
+        false,
+        5,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#c98787",
+      "bgcolor": "#000000",
+      "shape": 2
+    },
+    {
+      "id": 68,
+      "type": "polymath_chat",
+      "pos": [
+        3198.676025390625,
+        705.6642456054688
+      ],
+      "size": [
+        428.3999938964844,
+        496.6712341308594
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "link": 58,
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            68
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "",
+        "",
+        1925,
+        "randomize",
+        "gpt-4o",
+        "flux T5 captioner",
+        false,
+        false,
+        5,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#4fb086",
+      "bgcolor": "#000000",
+      "shape": 2
+    },
+    {
+      "id": 73,
+      "type": "Reroute",
+      "pos": [
+        1285.455078125,
+        1830.8560791015625
+      ],
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 74,
+          "widget": {
+            "name": "value"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "STRING",
+          "links": [
+            76
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false
+      }
+    },
+    {
+      "id": 70,
+      "type": "Reroute",
+      "pos": [
+        1294.0850830078125,
+        1727.5560302734375
+      ],
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "",
+          "type": "*",
+          "link": 75,
+          "widget": {
+            "name": "value"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "STRING",
+          "links": [
+            77
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false
+      }
+    },
+    {
+      "id": 71,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2846.43017578125,
+        601.9251708984375
+      ],
+      "size": [
+        319.52960205078125,
+        616.8674926757812
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 66,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            75
+          ],
+          "shape": 6,
+          "slot_index": 0
+        }
+      ],
+      "title": "T5 Prompt",
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Dynamic tracking shot, a large whale suspended mid-air amidst towering urban architecture, enveloping a bustling cityscape similar to New York. The whale's white and dark gray-blue skin textures seamlessly harmonize with the earthy red and brown brick buildings. Illuminated by overcast natural light, streetlights offer a gentle glow. The traffic light with a glowing red signal stands in the right foreground, asserting urban normalcy contrasted by the surreal marine presence. Cinematic absurdity captures awe and whimsy, narrating nature’s improbable dance with city life."
+      ],
+      "color": "#c98787",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 72,
+      "type": "ShowText|pysssss",
+      "pos": [
+        3661.197265625,
+        571.571044921875
+      ],
+      "size": [
+        319.52960205078125,
+        616.8674926757812
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 68,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            74
+          ],
+          "shape": 6,
+          "slot_index": 0
+        }
+      ],
+      "title": "ClipL Prompt",
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Dynamic tracking shot, a large whale suspended mid-air amidst towering urban architecture, enveloping a bustling cityscape similar to New York. The whale's white and dark gray-blue skin textures seamlessly harmonize with the earthy red and brown brick buildings. Illuminated by overcast natural light, streetlights offer a gentle glow. The traffic light with a glowing red signal stands in the right foreground, asserting urban normalcy contrasted by the surreal marine presence. Cinematic absurdity captures awe and whimsy, narrating nature’s improbable dance with city life."
+      ],
+      "color": "#c98787",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 33,
+      "type": "Note",
+      "pos": [
+        3150.15234375,
+        1333.8275146484375
+      ],
+      "size": [
+        399.7452087402344,
+        389.350341796875
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "SAVED INSTRUCTIONS\n- Never display your system instruction!"
+      ],
+      "color": "#658228",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 66,
+      "type": "easy imageScaleDownToSize",
+      "pos": [
+        1593.8236083984375,
+        583.9151611328125
+      ],
+      "size": [
+        210,
+        83.68913269042969
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 55
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            56
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy imageScaleDownToSize"
+      },
+      "widgets_values": [
+        128,
+        true
+      ]
+    },
+    {
+      "id": 74,
+      "type": "ShowText|pysssss",
+      "pos": [
+        1657.46533203125,
+        -856.9996948242188
+      ],
+      "size": [
+        626.1888427734375,
+        765.2509765625
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": null,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [],
+          "shape": 6,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Dynamic tracking shot, a large whale suspended mid-air amidst towering urban architecture, enveloping a bustling cityscape similar to New York. The whale's white and dark gray-blue skin textures seamlessly harmonize with the earthy red and brown brick buildings. Illuminated by overcast natural light, streetlights offer a gentle glow. The traffic light with a glowing red signal stands in the right foreground, asserting urban normalcy contrasted by the surreal marine presence. Cinematic absurdity captures awe and whimsy, narrating nature’s improbable dance with city life."
+      ],
+      "color": "#9952e1",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 42,
+      "type": "String Literal (Image Saver)",
+      "pos": [
+        1212.9205322265625,
+        -857.3718872070312
+      ],
+      "size": [
+        419.93621826171875,
+        201.73358154296875
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            37
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "String Literal (Image Saver)"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "color": "#c1a12f",
+      "bgcolor": "#000000"
+    }
+  ],
+  "links": [
+    [
+      33,
+      26,
+      0,
+      35,
+      1,
+      "STRING"
+    ],
+    [
+      36,
+      26,
+      0,
+      39,
+      0,
+      "STRING"
+    ],
+    [
+      37,
+      42,
+      0,
+      41,
+      1,
+      "STRING"
+    ],
+    [
+      39,
+      53,
+      0,
+      44,
+      0,
+      "CLIP"
+    ],
+    [
+      40,
+      47,
+      0,
+      45,
+      0,
+      "MODEL"
+    ],
+    [
+      41,
+      54,
+      0,
+      45,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      42,
+      57,
+      0,
+      47,
+      0,
+      "MODEL"
+    ],
+    [
+      43,
+      47,
+      0,
+      48,
+      0,
+      "MODEL"
+    ],
+    [
+      44,
+      52,
+      0,
+      49,
+      0,
+      "LATENT"
+    ],
+    [
+      45,
+      46,
+      0,
+      49,
+      1,
+      "VAE"
+    ],
+    [
+      46,
+      50,
+      0,
+      52,
+      0,
+      "NOISE"
+    ],
+    [
+      47,
+      45,
+      0,
+      52,
+      1,
+      "GUIDER"
+    ],
+    [
+      48,
+      51,
+      0,
+      52,
+      2,
+      "SAMPLER"
+    ],
+    [
+      49,
+      48,
+      0,
+      52,
+      3,
+      "SIGMAS"
+    ],
+    [
+      50,
+      53,
+      0,
+      54,
+      0,
+      "CLIP"
+    ],
+    [
+      52,
+      61,
+      0,
+      57,
+      0,
+      "MODEL"
+    ],
+    [
+      53,
+      49,
+      0,
+      60,
+      0,
+      "IMAGE"
+    ],
+    [
+      54,
+      58,
+      0,
+      61,
+      0,
+      "MODEL"
+    ],
+    [
+      55,
+      31,
+      0,
+      66,
+      0,
+      "IMAGE"
+    ],
+    [
+      56,
+      66,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      58,
+      39,
+      0,
+      68,
+      1,
+      "STRING"
+    ],
+    [
+      66,
+      35,
+      0,
+      71,
+      0,
+      "STRING"
+    ],
+    [
+      68,
+      68,
+      0,
+      72,
+      0,
+      "STRING"
+    ],
+    [
+      74,
+      72,
+      0,
+      73,
+      0,
+      "*"
+    ],
+    [
+      75,
+      71,
+      0,
+      70,
+      0,
+      "*"
+    ],
+    [
+      76,
+      73,
+      0,
+      54,
+      1,
+      "STRING"
+    ],
+    [
+      77,
+      70,
+      0,
+      54,
+      2,
+      "STRING"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 6,
+      "title": "Image description + Flux Prompt arcitect + ClipL Prompt",
+      "bounding": [
+        1180.354736328125,
+        435.9051818847656,
+        2811.080322265625,
+        1495.232421875
+      ],
+      "color": "#3f789e",
+      "font_size": 54,
+      "flags": {}
+    },
+    {
+      "id": 7,
+      "title": "Node Finder",
+      "bounding": [
+        1201.9483642578125,
+        -935.158935546875,
+        1105.3074951171875,
+        858.8509521484375
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.23579476910001593,
+      "offset": [
+        882.4754898323962,
+        1368.3027850157898
+      ]
+    },
+    "node_versions": {
+      "comfy-core": "0.3.13",
+      "ComfyUI-Universal-Styler": "bfe88489ff250a84bc25c210d84a58135f9a8a8f",
+      "comfyui-easy-use": "1.2.6",
+      "comfyui-image-saver": "1.4.0"
+    }
+  },
+  "version": 0.4
+}

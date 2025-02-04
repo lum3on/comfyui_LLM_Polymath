@@ -1,0 +1,243 @@
+{
+  "last_node_id": 79,
+  "last_link_id": 82,
+  "nodes": [
+    {
+      "id": 41,
+      "type": "polymath_chat",
+      "pos": [
+        1815.6025390625,
+        -584.7335205078125
+      ],
+      "size": [
+        430.873046875,
+        627.7433471679688
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        },
+        {
+          "name": "additional_text",
+          "type": "STRING",
+          "link": 82,
+          "widget": {
+            "name": "additional_text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            79
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "explain this comfyui workflow to me.",
+        "",
+        551,
+        "randomize",
+        "gpt-4o-mini",
+        "None",
+        false,
+        true,
+        7,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#c1a12f",
+      "bgcolor": "#000000",
+      "shape": 2
+    },
+    {
+      "id": 77,
+      "type": "json2text",
+      "pos": [
+        1851.2430419921875,
+        115.19193267822266
+      ],
+      "size": [
+        379.6217346191406,
+        56.289615631103516
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "JSON",
+          "type": "*",
+          "link": 81
+        }
+      ],
+      "outputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "links": [
+            82
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "json2text"
+      }
+    },
+    {
+      "id": 74,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2261.795654296875,
+        -587.1124877929688
+      ],
+      "size": [
+        559.403076171875,
+        1027.537841796875
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 79,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "The provided \"ComfyUI\" workflow is likely for generating images using text prompts with a focus on encoding both positive and negative prompts. Here’s a breakdown of the workflow components and how they interact:\n\n### Workflow Overview\n\n1. **Node Types**:\n   - **CLIPTextEncode**: Processes text prompts (both positive and negative) to generate conditioning information for the model.\n   - **EmptySD3LatentImage**: Initializes a latent image with specified dimensions (1024x1024, 1 channel).\n   - **VAEDecode**: Decodes the latent representation into an actual image using a VAE (Variational Autoencoder).\n   - **SaveImage**: Saves the generated image to a specified location.\n   - **KSampler**: Samples images based on the model and the provided conditioning from both positive and negative prompts.\n   - **CheckpointLoaderSimple**: Loads the necessary components (model, CLIP, VAE) for generating images.\n   - **Note**: A note for the user, providing important information about the configuration.\n\n### Detailed Node Breakdown\n\n1. **CheckpointLoaderSimple (Node ID: 30)**:\n   - **Purpose**: Loads the model, CLIP text encoder, and VAE.\n   - **Outputs**: Connects to links for MODEL, CLIP, and VAE for subsequent nodes.\n   - **Widget Value**: Loads a specific model \"flux1-schnell-fp8.safetensors\".\n\n2. **CLIPTextEncode (Positive Prompt) (Node ID: 6)**:\n   - **Purpose**: Encodes the positive prompt into a CONDITIONING format.\n   - **Input**: Takes CLIP from the CheckpointLoader node.\n   - **Output**: Outputs conditioning representation for the positive prompt, linked to the KSampler.\n\n3. **CLIPTextEncode (Negative Prompt) (Node ID: 33)**:\n   - **Purpose**: Encodes the negative prompt.\n   - **Input**: Also takes CLIP from the CheckpointLoader.\n   - **Output**: Outputs conditioning for the negative prompt, linked to the KSampler.\n\n4. **EmptySD3LatentImage (Node ID: 27)**:\n   - **Purpose**: Creates an empty latent image, which is essential for the sampling process.\n   - **Output**: The latent representation is linked to the KSampler.\n\n5. **KSampler (Node ID: 31)**:\n   - **Purpose**: The core component that generates the image based on the model, the positive and negative prompts, and the latent image.\n   - **Inputs**: Combines the conditioning from both prompts and the latent image.\n   - **Outputs**: Produces a latent representation, which is forwarded to the VAE decoding step.\n\n6. **VAEDecode (Node ID: 8)**:\n   - **Purpose**: Converts the latent representation into an actual image.\n   - **Inputs**: Receives the latent representation from the KSampler and the VAE from CheckpointLoader.\n   - **Output**: Produces an output image, which is passed to the SaveImage node.\n\n7. **SaveImage (Node ID: 9)**:\n   - **Purpose**: Saves the output image generated by the VAEDecode step.\n   - **Input**: Takes the image output from the VAEDecode node.\n   - **Widget Value**: The output image is saved with the name \"ComfyUI\".\n\n8. **Note (Node ID: 34)**:\n   - **Purpose**: It provides additional information to the user regarding the configuration settings.\n   - **Content**: Mentions that certain models do not utilize negative prompts and suggests setting CFG to 1.0.\n\n### Links Between Nodes\n- **Linking Mechanics**: Each node interacts through defined links indicating the flow of data:\n  - Output of one node feeds into the input of another, establishing a pipeline from text input to image output.\n  \n### Workflow Summary\nThe main function of this workflow is to convert text prompts (both positive and negative) into a visual representation through a series of processing steps, employing various models and encoders. The output image is saved at the end of the workflow, allowing for user-accessible results.\n\n### Important Notes:\n- Setting the CFG (classifier-free guidance) to 1.0 ensures that negative prompts won't affect the outputs, which is important for certain models like \"schnell\".\n- The workflow is designed for efficient image generation in response to specified textual descriptions. \n\nThis structured approach makes it easier for users to generate specific images based on their needs while considering the impacts of different configurations and model capabilities."
+      ],
+      "color": "#9952e1",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 79,
+      "type": "Read JSON file [Crystools]",
+      "pos": [
+        1822.9124755859375,
+        95.65811920166016
+      ],
+      "size": [
+        419.26605224609375,
+        334.8139953613281
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "json",
+          "type": "JSON",
+          "links": [
+            81
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Read JSON file [Crystools]"
+      },
+      "widgets_values": [
+        "C:/Users/RAIIN Studios/Downloads/Flux Schnell.json",
+        "{\n  \"last_node_id\": 36,\n  \"last_link_id\": 58,\n  \"nodes\": [\n    {\n      \"id\": 33,\n      \"type\": \"CLIPTextEncode\",\n      \"pos\": [\n        390,\n        400\n      ],\n      \"size\": [\n        422.84503173828125,\n        164.31304931640625\n      ],\n      \"flags\": {\n        \"collapsed\": true\n      },\n      \"order\": 4,\n      \"mode\": 0,\n      \"inputs\": [\n        {\n          \"name\": \"clip\",\n          \"type\": \"CLIP\",\n          \"link\": 54,\n          \"slot_index\": 0\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"CONDITIONING\",\n          \"type\": \"CONDITIONING\",\n          \"links\": [\n            55\n          ],\n          \"slot_index\": 0\n        }\n      ],\n      \"title\": \"CLIP Text Encode (Negative Prompt)\",\n      \"properties\": {\n        \"Node name for S&R\": \"CLIPTextEncode\"\n      },\n      \"widgets_values\": [\n        \"\"\n      ],\n      \"color\": \"#322\",\n      \"bgcolor\": \"#533\"\n    },\n    {\n      \"id\": 27,\n      \"type\": \"EmptySD3LatentImage\",\n      \"pos\": [\n        471,\n        455\n      ],\n      \"size\": [\n        315,\n        106\n      ],\n      \"flags\": {},\n      \"order\": 0,\n      \"mode\": 0,\n      \"inputs\": [],\n      \"outputs\": [\n        {\n          \"name\": \"LATENT\",\n          \"type\": \"LATENT\",\n          \"links\": [\n            51\n          ],\n          \"slot_index\": 0,\n          \"shape\": 3\n        }\n      ],\n      \"properties\": {\n        \"Node name for S&R\": \"EmptySD3LatentImage\"\n      },\n      \"widgets_values\": [\n        1024,\n        1024,\n        1\n      ],\n      \"color\": \"#323\",\n      \"bgcolor\": \"#535\"\n    },\n    {\n      \"id\": 8,\n      \"type\": \"VAEDecode\",\n      \"pos\": [\n        1151,\n        195\n      ],\n      \"size\": [\n        210,\n        46\n      ],\n      \"flags\": {},\n      \"order\": 6,\n      \"mode\": 0,\n      \"inputs\": [\n        {\n          \"name\": \"samples\",\n          \"type\": \"LATENT\",\n          \"link\": 52\n        },\n        {\n          \"name\": \"vae\",\n          \"type\": \"VAE\",\n          \"link\": 46\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"IMAGE\",\n          \"type\": \"IMAGE\",\n          \"links\": [\n            9\n          ],\n          \"slot_index\": 0\n        }\n      ],\n      \"properties\": {\n        \"Node name for S&R\": \"VAEDecode\"\n      },\n      \"widgets_values\": []\n    },\n    {\n      \"id\": 9,\n      \"type\": \"SaveImage\",\n      \"pos\": [\n        1375,\n        194\n      ],\n      \"size\": [\n        985.3012084960938,\n        1060.3828125\n      ],\n      \"flags\": {},\n      \"order\": 7,\n      \"mode\": 0,\n      \"inputs\": [\n        {\n          \"name\": \"images\",\n          \"type\": \"IMAGE\",\n          \"link\": 9\n        }\n      ],\n      \"outputs\": [],\n      \"properties\": {\n        \"Node name for S&R\": \"SaveImage\"\n      },\n      \"widgets_values\": [\n        \"ComfyUI\"\n      ]\n    },\n    {\n      \"id\": 31,\n      \"type\": \"KSampler\",\n      \"pos\": [\n        816,\n        192\n      ],\n      \"size\": [\n        315,\n        262\n      ],\n      \"flags\": {},\n      \"order\": 5,\n      \"mode\": 0,\n      \"inputs\": [\n        {\n          \"name\": \"model\",\n          \"type\": \"MODEL\",\n          \"link\": 47\n        },\n        {\n          \"name\": \"positive\",\n          \"type\": \"CONDITIONING\",\n          \"link\": 58\n        },\n        {\n          \"name\": \"negative\",\n          \"type\": \"CONDITIONING\",\n          \"link\": 55\n        },\n        {\n          \"name\": \"latent_image\",\n          \"type\": \"LATENT\",\n          \"link\": 51\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"LATENT\",\n          \"type\": \"LATENT\",\n          \"links\": [\n            52\n          ],\n          \"slot_index\": 0,\n          \"shape\": 3\n        }\n      ],\n      \"properties\": {\n        \"Node name for S&R\": \"KSampler\"\n      },\n      \"widgets_values\": [\n        173805153958730,\n        \"randomize\",\n        4,\n        1,\n        \"euler\",\n        \"simple\",\n        1\n      ]\n    },\n    {\n      \"id\": 30,\n      \"type\": \"CheckpointLoaderSimple\",\n      \"pos\": [\n        48,\n        192\n      ],\n      \"size\": [\n        315,\n        98\n      ],\n      \"flags\": {},\n      \"order\": 1,\n      \"mode\": 0,\n      \"inputs\": [],\n      \"outputs\": [\n        {\n          \"name\": \"MODEL\",\n          \"type\": \"MODEL\",\n          \"links\": [\n            47\n          ],\n          \"slot_index\": 0,\n          \"shape\": 3\n        },\n        {\n          \"name\": \"CLIP\",\n          \"type\": \"CLIP\",\n          \"links\": [\n            45,\n            54\n          ],\n          \"slot_index\": 1,\n          \"shape\": 3\n        },\n        {\n          \"name\": \"VAE\",\n          \"type\": \"VAE\",\n          \"links\": [\n            46\n          ],\n          \"slot_index\": 2,\n          \"shape\": 3\n        }\n      ],\n      \"properties\": {\n        \"Node name for S&R\": \"CheckpointLoaderSimple\"\n      },\n      \"widgets_values\": [\n        \"flux1-schnell-fp8.safetensors\"\n      ]\n    },\n    {\n      \"id\": 6,\n      \"type\": \"CLIPTextEncode\",\n      \"pos\": [\n        384,\n        192\n      ],\n      \"size\": [\n        422.84503173828125,\n        164.31304931640625\n      ],\n      \"flags\": {},\n      \"order\": 3,\n      \"mode\": 0,\n      \"inputs\": [\n        {\n          \"name\": \"clip\",\n          \"type\": \"CLIP\",\n          \"link\": 45\n        }\n      ],\n      \"outputs\": [\n        {\n          \"name\": \"CONDITIONING\",\n          \"type\": \"CONDITIONING\",\n          \"links\": [\n            58\n          ],\n          \"slot_index\": 0\n        }\n      ],\n      \"title\": \"CLIP Text Encode (Positive Prompt)\",\n      \"properties\": {\n        \"Node name for S&R\": \"CLIPTextEncode\"\n      },\n      \"widgets_values\": [\n        \"a bottle with a beautiful rainbow galaxy inside it on top of a wooden table in the middle of a modern kitchen beside a plate of vegetables and mushrooms and a wine glasse that contains a planet earth with a plate with a half eaten apple pie on it\"\n      ],\n      \"color\": \"#232\",\n      \"bgcolor\": \"#353\"\n    },\n    {\n      \"id\": 34,\n      \"type\": \"Note\",\n      \"pos\": [\n        831,\n        501\n      ],\n      \"size\": [\n        282.8617858886719,\n        164.08004760742188\n      ],\n      \"flags\": {},\n      \"order\": 2,\n      \"mode\": 0,\n      \"inputs\": [],\n      \"outputs\": [],\n      \"properties\": {\n        \"text\": \"\"\n      },\n      \"widgets_values\": [\n        \"Note that Flux dev and schnell do not have any negative prompt so CFG should be set to 1.0. Setting CFG to 1.0 means the negative prompt is ignored.\\n\\nThe schnell model is a distilled model that can generate a good image with only 4 steps.\"\n      ],\n      \"color\": \"#432\",\n      \"bgcolor\": \"#653\"\n    }\n  ],\n  \"links\": [\n    [\n      9,\n      8,\n      0,\n      9,\n      0,\n      \"IMAGE\"\n    ],\n    [\n      45,\n      30,\n      1,\n      6,\n      0,\n      \"CLIP\"\n    ],\n    [\n      46,\n      30,\n      2,\n      8,\n      1,\n      \"VAE\"\n    ],\n    [\n      47,\n      30,\n      0,\n      31,\n      0,\n      \"MODEL\"\n    ],\n    [\n      51,\n      27,\n      0,\n      31,\n      3,\n      \"LATENT\"\n    ],\n    [\n      52,\n      31,\n      0,\n      8,\n      0,\n      \"LATENT\"\n    ],\n    [\n      54,\n      30,\n      1,\n      33,\n      0,\n      \"CLIP\"\n    ],\n    [\n      55,\n      33,\n      0,\n      31,\n      2,\n      \"CONDITIONING\"\n    ],\n    [\n      58,\n      6,\n      0,\n      31,\n      1,\n      \"CONDITIONING\"\n    ]\n  ],\n  \"groups\": [],\n  \"config\": {},\n  \"extra\": {\n    \"ds\": {\n      \"scale\": 0.42409761837248483,\n      \"offset\": [\n        1317.6176784551706,\n        456.77572487745584\n      ]\n    },\n    \"node_versions\": {\n      \"comfy-core\": \"0.3.13\"\n    }\n  },\n  \"version\": 0.4\n}"
+      ],
+      "color": "#49a528",
+      "bgcolor": "#000000"
+    }
+  ],
+  "links": [
+    [
+      79,
+      41,
+      0,
+      74,
+      0,
+      "STRING"
+    ],
+    [
+      81,
+      79,
+      0,
+      77,
+      0,
+      "*"
+    ],
+    [
+      82,
+      77,
+      0,
+      41,
+      1,
+      "STRING"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 7,
+      "title": "Comfy smart assistant",
+      "bounding": [
+        1793.74365234375,
+        -712.2714233398438,
+        1039.689453125,
+        1170.714111328125
+      ],
+      "color": "#3f789e",
+      "font_size": 54,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.553522046476931,
+      "offset": [
+        -1707.0737864334271,
+        838.959857971072
+      ]
+    },
+    "node_versions": {
+      "comfyui-LLM-Polymath": "6702f642e4051ea811238a12909ad1f15bbbb6f0",
+      "comfyui_llm_party": "1.2.0",
+      "ComfyUI-Universal-Styler": "bfe88489ff250a84bc25c210d84a58135f9a8a8f",
+      "ComfyUI-Crystools": "03a61d690379f22c6bffc42ea4845f797deb316c"
+    }
+  },
+  "version": 0.4
+}

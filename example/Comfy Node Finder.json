@@ -1,0 +1,144 @@
+{
+  "last_node_id": 74,
+  "last_link_id": 79,
+  "nodes": [
+    {
+      "id": 74,
+      "type": "ShowText|pysssss",
+      "pos": [
+        2261.009033203125,
+        -587.1124877929688
+      ],
+      "size": [
+        636.0159912109375,
+        642.4439697265625
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 79,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "Here are the nodes relevant to experimental noise injection in ComfyUI:\n\n### 1. ComfyUI_Noise\n- **Description:** This extension contains 6 nodes for ComfyUI that allows for more control and flexibility over the noise.\n- **Category:** Noise Processing\n- **Link:** [ComfyUI Noise](https://github.com/BlenderNeko/ComfyUI_Noise)\n\n### 2. PPF_Noise_ComfyUI\n- **Description:** Nodes: WAS_PFN_Latent. Perlin Power Fractal Noisey Latents.\n- **Category:** Noise Processing\n- **Link:** [PPF_Noise_ComfyUI](https://github.com/WASasquatch/PPF_Noise_ComfyUI)\n\n### 3. Power Noise Suite for ComfyUI\n- **Description:** Power Noise Suite contains nodes centered around latent noise input, and diffusion, as well as latent adjustments.\n- **Category:** Noise Processing\n- **Link:** [Power Noise Suite](https://github.com/WASasquatch/PowerNoiseSuite)\n\n### 4. ComfyUI_NoiseLatentPerlinPinPin\n- **Description:** Nodes: NoisyLatentPerlin. This allows to create latent spaces filled with perlin-based noise that can actually be used by the samplers.\n- **Category:** Noise Processing\n- **Link:** [NoiseLatentPerlinPinPin](https://github.com/Extraltodeus/noise_latent_perlinpinpin)\n\n### 5. ComfyUI_SUNoise\n- **Description:** Scaled Uniform Noise for Ancestral and Stochastic samplers.\n- **Category:** Noise Processing\n- **Link:** [ComfyUI SUNoise](https://github.com/bvhari/ComfyUI_SUNoise)\n\n### 6. FizzNodes\n- **Description:** Scheduled prompts, scheduled float/int values and wave function nodes for animations and utility. compatible with [framesync](https://www.framesync.xyz/) and [keyframe-string-generator](https://www.chigozie.co.uk/keyframe-string-generator/).\n- **Category:** Randomization Nodes\n- **Link:** [FizzNodes](https://github.com/FizzleDorf/ComfyUI_FizzNodes)\n\n### 7. Noise variation and batch noise tools\n- **Description:** Nodes to create small variations on noise, to shape noise, and to control noise in batches. Replaces the old 'variation-seed' nodes.\n- **Category:** Noise Processing\n- **Link:** [Noise variation and batch noise tools](https://github.com/chrisgoringe/cg-noisetools)\n\n### 8. ComfyUI Dynamic Noise\n- **Description:** Provides a simple way to add noise dynamically during generation by modifying latent tensors in a structured way.\n- **Category:** Noise Processing\n- **Link:** [ComfyUI Dynamic Noise](https://github.com/chrisgoringe/cg-everywhere)\n\nThese nodes can help you experiment with noise injection in your ComfyUI projects."
+      ],
+      "color": "#9952e1",
+      "bgcolor": "#000000"
+    },
+    {
+      "id": 41,
+      "type": "polymath_chat",
+      "pos": [
+        1814.8157958984375,
+        -584.7335205078125
+      ],
+      "size": [
+        430.873046875,
+        627.7433471679688
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            79
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "list me nodes for experimental noise injection.",
+        "",
+        665,
+        "randomize",
+        "gpt-4o-mini",
+        "node finder",
+        false,
+        true,
+        7,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#c1a12f",
+      "bgcolor": "#000000",
+      "shape": 2
+    }
+  ],
+  "links": [
+    [
+      79,
+      41,
+      0,
+      74,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 7,
+      "title": "Node Finder",
+      "bounding": [
+        1792.9569091796875,
+        -712.2714233398438,
+        1126.8076171875,
+        770.0957641601562
+      ],
+      "color": "#3f789e",
+      "font_size": 54,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.5054470284993297,
+      "offset": [
+        -703.8863343158873,
+        938.2237568926421
+      ]
+    },
+    "node_versions": {
+      "ComfyUI-Universal-Styler": "bfe88489ff250a84bc25c210d84a58135f9a8a8f"
+    }
+  },
+  "version": 0.4
+}
