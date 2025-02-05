@@ -7,7 +7,7 @@ An advanced Chat Node designed for ComfyUI that integrates with large language m
 
 ## Overview
 
-The LLM Polymath Chat Node is built to serve as a “polymath” in the digital world, able to fetch additional context from the web and merge that data with a user’s query. Whether you’re working with conversational prompts, visual inputs, or integrating specialized instructions, this node streamlines interactions with language models while maintaining context and flexibility.
+The LLM Polymath Chat Node is built to serve as a “polymath” in the digital world, able to fetch additional context from the web and merge that data with a user’s query. Whether you’re working with conversational prompts, visual inputs, or integrating specialized instructions, this node streamlines interactions with LLM`s while maintaining context and flexibility.
 
 Key capabilities include:
 
