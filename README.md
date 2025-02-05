@@ -96,15 +96,6 @@ The node exposes a range of configurable inputs:
 
 ---
 
-## Planned Updates
-
-The following features are planned for the next Update.
-
-- [ ] **Node Finder Implementation in ComfyUI Manager:** Integrate a full-featured node finder in the Comfy Manager
-- [ ] **Advanced Parameter Node:** Introduce an enhanced parameter node offering additional customization and control.
-- [ ] **Speed Improvements:** Optimize processing and API response times for a more fluid user experience.
-
----
 ## Installation
 
 1. **Clone the Repository:**
@@ -124,6 +115,16 @@ The following features are planned for the next Update.
    ```bash
    export OPENAI_API_KEY="your_api_key_here"
    ```
+---
+
+## Planned Updates
+
+The following features are planned for the next Update.
+
+- [ ] **Node Finder Implementation in ComfyUI Manager:** Integrate a full-featured node finder in the Comfy Manager
+- [ ] **Advanced Parameter Node:** Introduce an enhanced parameter node offering additional customization and control.
+- [ ] **Speed Improvements:** Optimize processing and API response times for a more fluid user experience.
+
 ---
 
 ## License
