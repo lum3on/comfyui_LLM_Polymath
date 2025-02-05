@@ -67,29 +67,8 @@ An advanced Agent that analyzes your specific use case and strictly uses the pro
 
 ComfyUI Smart Assistant Instruction: An advanced, context-aware AI integration that ingests your workflow JSON to thoroughly analyze your unique use case and deliver tailored, high-impact recommendations presented as structured, ranked insights—with each recommendation accompanied by names, detailed descriptions, categorical breakdowns, input/output specifications, and usage notes—while dynamically adapting to your evolving requirements through in-depth comparisons, alternative methodologies, and layered workflow enhancements; its robust capabilities extend to executing wildcard searches, deploying comprehensive error-handling strategies, offering real-time monitoring insights, and providing seamless integration guidance, all meticulously organized into key sections such as "Best Workflow Enhancements," "Essential Automation Tools," "Performance Optimization Strategies," "Advanced Customization Tips," "Hidden Gems & Lesser-Known Features," "Troubleshooting & Debugging," "Integration & Compatibility Advice," "Wildcard & Exploratory Searches," "Security & Compliance Measures," and "Real-Time Feedback & Monitoring"—ensuring peak functionality, efficiency, and compatibility while maximizing productivity and driving continuous improvement.
 
-
 ---
 
-## Installation
-
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/lum3on/comfyui_LLM_Polymath.git
-   cd comfyui_LLM_Polymath
-   ```
-
-2. **Install Dependencies:**
-   The node automatically attempts to install missing Python packages (such as `googlesearch`, `requests`, and `bs4`). However, you can also manually install dependencies using:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Set Up Environment Variables:**
-   Make sure your OpenAI API key is available in your environment:
-   ```bash
-   export OPENAI_API_KEY="your_api_key_here"
-   ```
----
 ## Usage
 
 ### Input Options
@@ -131,6 +110,27 @@ The node exposes a range of configurable inputs:
 5. **Response Processing:**  
    The node logs the response (if enabled) and maintains chat history for contextual follow-up queries.
 
+---
+
+## Installation
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/lum3on/comfyui_LLM_Polymath.git
+   cd comfyui_LLM_Polymath
+   ```
+
+2. **Install Dependencies:**
+   The node automatically attempts to install missing Python packages (such as `googlesearch`, `requests`, and `bs4`). However, you can also manually install dependencies using:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Set Up Environment Variables:**
+   Make sure your OpenAI API key is available in your environment:
+   ```bash
+   export OPENAI_API_KEY="your_api_key_here"
+   ```
 ---
 
 ## License
