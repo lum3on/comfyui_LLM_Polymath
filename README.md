@@ -94,31 +94,17 @@ The node exposes a range of configurable inputs:
 - **Console Log:** Toggle detailed logging.
 - **Image:** Optionally pass an image tensor for multimodal input.
 
-### How It Works
-
-1. **Prompt Augmentation:**  
-   The node first processes the prompt—replacing or appending additional text—and then checks if web search is enabled.
-
-2. **Web Integration:**  
-   If enabled, it:
-   - Extracts any URLs present in the prompt.
-   - Fetches and extracts text from these URLs.
-   - Performs a Google search based on the prompt and processes the top results.
-   - Appends all fetched information (and source URLs) to the augmented prompt.
-
-3. **Model Invocation:**  
-   Depending on the selected model:
-   - **OpenAI API:** For models with identifiers starting with `gpt`, `o1`, or `o3`, it builds a message history and invokes the chat completion API.
-   - **Ollama API:** For all other models, it sends a JSON payload to the Ollama endpoint.
-
-4. **Handling Images:**  
-   If an image is provided, it is encoded and sent along with the prompt so that the language model can process both text and image data.
-
-5. **Response Processing:**  
-   The node logs the response (if enabled) and maintains chat history for contextual follow-up queries.
-
 ---
 
+## Planned Updates
+
+The following features are planned for upcoming releases. Check the boxes to track progress:
+
+- [ ] **Node Finder Implementation in ComfyUI Manager:** Integrate a full-featured node finder in the Comfy Manager
+- [ ] **Advanced Parameter Node:** Introduce an enhanced parameter node offering additional customization and control.
+- [ ] **Speed Improvements:** Optimize processing and API response times for a more fluid user experience.
+
+---
 ## Installation
 
 1. **Clone the Repository:**
