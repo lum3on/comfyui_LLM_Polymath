@@ -78,7 +78,7 @@ def load_models():
 
     # Determine the default model
     default_model = models_list[0] if models_list else None
-    print("\033[92mAvailable models for Polymath: \033[0m", f"\033[94m{models_list}\033[0m")
+    print("\033[92mPolymath loaded these models: \033[0m", f"\033[38;5;99m{models_list}\033[0m")
 
     return base_url, merged_models, models_list, default_model
 

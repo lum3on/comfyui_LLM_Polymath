@@ -5,8 +5,8 @@ app.registerExtension({
     async nodeCreated(node) {
         if (node.comfyClass === "polymath_chat") { // das was in __init__ unter NODE_CLASS_MAPPINGS steht
             // Apply styling
-            node.color = "#9e69ec";
-            node.bgcolor = "#b1da59";
+            node.color = "#9968f3";
+            node.bgcolor = "#519b36";
         }
     }
 });
