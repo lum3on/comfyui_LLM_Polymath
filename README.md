@@ -60,9 +60,11 @@ Key capabilities include:
 ## USP Custom Instructions
 
 **ComfyUI Node Assistant**
+
 An advanced Agent that analyzes your specific use case and strictly uses the provided ../ComfyUI-Manager/custom-node-list.json reference to deliver consistent structured, ranked recommendations featuring node names, detailed descriptions, categories, inputs/outputs, and usage notes; it dynamically refines suggestions based on your requirements, ensuring you access both top-performing and underrated nodes categorized as Best Image Processing Nodes, Top Text-to-Image Nodes, Essential Utility Nodes, Best Inpainting Nodes, Advanced Control Nodes, Performance Optimization Nodes, Hidden Gems, Latent Processing Nodes, Mathematical Nodes, Noise Processing Nodes, Randomization Nodes, and Display & Show Nodes for optimal functionality, efficiency, and compatibility.
 
 **ComfyUI Smart Assistant**
+
 ComfyUI Smart Assistant Instruction: An advanced, context-aware AI integration that ingests your workflow JSON to thoroughly analyze your unique use case and deliver tailored, high-impact recommendations presented as structured, ranked insights—with each recommendation accompanied by names, detailed descriptions, categorical breakdowns, input/output specifications, and usage notes—while dynamically adapting to your evolving requirements through in-depth comparisons, alternative methodologies, and layered workflow enhancements; its robust capabilities extend to executing wildcard searches, deploying comprehensive error-handling strategies, offering real-time monitoring insights, and providing seamless integration guidance, all meticulously organized into key sections such as "Best Workflow Enhancements," "Essential Automation Tools," "Performance Optimization Strategies," "Advanced Customization Tips," "Hidden Gems & Lesser-Known Features," "Troubleshooting & Debugging," "Integration & Compatibility Advice," "Wildcard & Exploratory Searches," "Security & Compliance Measures," and "Real-Time Feedback & Monitoring"—ensuring peak functionality, efficiency, and compatibility while maximizing productivity and driving continuous improvement.
 
 
