@@ -1,12 +1,12 @@
 import { app } from "../../scripts/app.js";
 
 app.registerExtension({
-    name: "polymath.appearance", // Extension name - was ist der richtige Name hier?
+    name: "llm_polymath.appearance", // Registrierter Extenstionname von Comfy
     async nodeCreated(node) {
-        if (node.comfyClass === "polymath") { // was ist der richtige Name hier?
+        if (node.comfyClass === "polymath_chat") { // das was in __init__ unter NODE_CLASS_MAPPINGS steht
             // Apply styling
-            node.color = "#16727c";
-            node.bgcolor = "#4F0074";
+            node.color = "#9e69ec";
+            node.bgcolor = "#b1da59";
         }
     }
 });
