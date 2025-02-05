@@ -1,5 +1,4 @@
-<img width="1151" alt="image" src="https://github.com/user-attachments/assets/2d3a3b25-c6c1-406f-a331-64c9d8b15c7d" /># LLM Polymath Chat Node
-
+# LLM Polymath Chat Node
 An advanced Chat Node designed for ComfyUI that integrates with large language models and enhances prompt responses by optionally incorporating real-time web search, linked content extraction, and custom instructions. It supports both OpenAI’s GPT-like models and alternative models served via a local Ollama API. At its core, two essential instructions—the Comfy Node Finder, which retrieves relevant custom nodes from a curated JSON database based on your queries, and the Smart Assistant, which ingests your workflow JSON to deliver tailored, actionable recommendations—drive its powerful, context-aware functionality. Additionally, a range of other agents such as Flux Prompter, several Custom Instructors, a Python debugger and scripter, and many more further extend its capabilities.
 
 <img width="1446" alt="image" src="https://github.com/user-attachments/assets/4740493e-ab05-4a6b-b3c4-753351d38318" />
@@ -72,8 +71,7 @@ An advanced Agent that analyzes your specific use case and strictly uses the pro
 
 ComfyUI Smart Assistant Instruction: An advanced, context-aware AI integration that ingests your workflow JSON to thoroughly analyze your unique use case and deliver tailored, high-impact recommendations presented as structured, ranked insights—with each recommendation accompanied by names, detailed descriptions, categorical breakdowns, input/output specifications, and usage notes—while dynamically adapting to your evolving requirements through in-depth comparisons, alternative methodologies, and layered workflow enhancements; its robust capabilities extend to executing wildcard searches, deploying comprehensive error-handling strategies, offering real-time monitoring insights, and providing seamless integration guidance, all meticulously organized into key sections such as "Best Workflow Enhancements," "Essential Automation Tools," "Performance Optimization Strategies," "Advanced Customization Tips," "Hidden Gems & Lesser-Known Features," "Troubleshooting & Debugging," "Integration & Compatibility Advice," "Wildcard & Exploratory Searches," "Security & Compliance Measures," and "Real-Time Feedback & Monitoring"—ensuring peak functionality, efficiency, and compatibility while maximizing productivity and driving continuous improvement.
 
-<img width="1449" alt="image" src="https://github.com/user-attachments/assets/bf52215e-ce35-495e-a77a-dfe1ba0e6b32" />
-
+<img width="662" alt="image" src="https://github.com/user-attachments/assets/3230a6cf-a783-4914-ba8f-f580c2f971d0" />
 
 ---
 
