@@ -98,7 +98,7 @@ The node exposes a range of configurable inputs:
 
 ## Planned Updates
 
-The following features are planned for upcoming releases. Check the boxes to track progress:
+The following features are planned for the next Update.
 
 - [ ] **Node Finder Implementation in ComfyUI Manager:** Integrate a full-featured node finder in the Comfy Manager
 - [ ] **Advanced Parameter Node:** Introduce an enhanced parameter node offering additional customization and control.
