@@ -139,12 +139,3 @@ This node integrates several libraries and APIs to deliver an advanced multimoda
 ---
 
 *For any questions or further assistance, please open an issue on GitHub or contact the maintainer.*
-
----
-
-### References
-
-- The core logic and functionalities are defined in the [`polymath.py`](https://github.com/lum3on/comfyui_LLM_Polymath/blob/main/polymath.py) file. cite60
-- Model configuration and merging from `config.json` and the Ollama API. cite60
-
-This README should help users and developers understand how to install, configure, and effectively use the LLM Polymath Chat Node within ComfyUI.
