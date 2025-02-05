@@ -110,10 +110,10 @@ The node exposes a range of configurable inputs:
    pip install -r requirements.txt
    ```
 
-3. **Set Up Environment Variables:**
-   Make sure your OpenAI API key is available in your environment:
+3. **Set the key in your Environment Variables:**
+   create a .env file in your comfy root folder and set your api-key in the file like this:
    ```bash
-   export OPENAI_API_KEY="your_api_key_here"
+   OPENAI_API_KEY="your_api_key_here"
    ```
 Below is an updated section you can add to your README to explain that once a model is downloaded via Ollama, it will automatically appear in the model dropdown after restarting Comfy:
 
