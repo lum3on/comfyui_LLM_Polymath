@@ -58,7 +58,7 @@ Key capabilities include:
 
 ---
 
-## USP Custom Instructions
+## USP Comfy Agents
 
 **ComfyUI Node Assistant**
 
