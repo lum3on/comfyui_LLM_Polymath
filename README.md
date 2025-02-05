@@ -115,6 +115,64 @@ The node exposes a range of configurable inputs:
    ```bash
    export OPENAI_API_KEY="your_api_key_here"
    ```
+Below is an updated section you can add to your README to explain that once a model is downloaded via Ollama, it will automatically appear in the model dropdown after restarting Comfy:
+
+---
+
+## Ollama Installation & Model Download
+
+OLAMA (Ollama) enables you to run large language models locally with a few simple commands. Follow these instructions to install OLAMA and download models.
+
+### Installing OLAMA
+
+#### On macOS:
+Download the installer from the official website or install via Homebrew:
+
+```bash
+brew install ollama
+```
+
+#### On Linux:
+Run the installation script directly from your terminal:
+
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+#### On Windows:
+Visit the [Ollama Download Page](https://ollama.com/download) and run the provided installer.
+
+### Downloading Models
+
+Once OLAMA is installed, you can easily pull and run models. For example, to download the lightweight Gemma 2B model:
+
+```bash
+ollama pull gemma:2b
+```
+
+After downloading, you can start interacting with the model using:
+
+```bash
+ollama run gemma:2b
+```
+
+For a full list of available models (including various sizes and specialized variants), please visit the official [Ollama Model Library](https://ollama.com/library).
+
+### Model Availability in Comfy
+
+After you download a model via Ollama, it will automatically be listed in the model dropdown in Comfy after you restart it. This seamless integration means you don’t need to perform any additional configuration—the model is ready for use immediately within Comfy.
+
+### Example Workflow
+
+1. **Install OLAMA** on your system using the method appropriate for your operating system.
+2. **Download a Model** with the `ollama pull` command.
+3. **Run the Model** with `ollama run <model-name>` to start a REPL and interact with it.
+4. **Restart Comfy** to have the downloaded model automatically appear in the model dropdown for easy selection.
+
+By following these steps, you can quickly set up OLAMA on your machine and begin experimenting with different large language models locally.
+
+For further details on model customization and advanced usage, refer to the official documentation at [Ollama Docs](https://docs.ollama.com).
+
 ---
 
 ## Planned Updates
