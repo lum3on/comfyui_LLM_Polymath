@@ -1,15 +1,15 @@
 [project]
-name = "comfyui-Polymath"
-description = "Polymath is a ComfyUI node that facilitates seamless interaction with various LLMs via API. Designed to enhance user experience, it supports multiple language models, web search integration, and customizable instructions, making it a powerful extension for AI-driven workflows."
-version = "1.0.1"
+name = "llm_polymath"
+description = ""
+version = "1.0.0"
 license = {file = "LICENSE"}
 dependencies = ["openai", "googlesearch-python", "requests", "bs4", "jax"]
 
 [project.urls]
-Repository = "https://github.com/fairy-root/ComfyUI-Polymath"
+Repository = "https://github.com/lum3on/comfyui_LLM_Polymath"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]
-PublisherId = "fairy-root"
-DisplayName = "ComfyUI-Polymath"
+PublisherId = "lum3on"
+DisplayName = "comfyui_LLM_Polymath"
 Icon = ""
