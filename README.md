@@ -165,7 +165,7 @@ After you download a model via Ollama, it will automatically be listed in the mo
 ### Example Workflow
 
 1. **Install OLAMA** on your system using the method appropriate for your operating system.
-2. **Download a Model** with the `ollama pull` command.
+2. **Download a Model** with the `ollama pull` command or use the run command and the model gets auto downloaded.
 3. **Run the Model** with `ollama run <model-name>` to start a REPL and interact with it.
 4. **Restart Comfy** to have the downloaded model automatically appear in the model dropdown for easy selection.
 
