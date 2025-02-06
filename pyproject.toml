@@ -1,6 +1,6 @@
 [project]
 name = "llm_polymath"
-description = ""
+description = "An advanced chat node, that integrates large language models to automate data processes and enhance prompt responses through real-time web search and image handling. It supports both OpenAI's GPT-like models and a local Ollama API. Custom node finder and smart assistant tools provide tailored workflow recommendations for efficient integration. Additionally, the node dynamically augments prompts and offers flexible output compression options."
 version = "1.0.0"
 license = {file = "LICENSE"}
 dependencies = ["openai", "googlesearch-python", "requests", "bs4", "jax"]
