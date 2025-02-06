@@ -1,8 +1,7 @@
 # LLM Polymath Chat Node
 An advanced Chat Node for ComfyUI that integrates large language models to build text-driven applications and automate data processes (RAGs), enhancing prompt responses by optionally incorporating real-time web search, linked content extraction, and custom agent instructions. It supports both OpenAI’s GPT-like models and alternative models served via a local Ollama API. At its core, two essential instructions—the Comfy Node Finder, which retrieves relevant custom nodes from a the ComfyUi- Manager Custom-node-JSON database based on your queries, and the Smart Assistant, which ingests your workflow JSON to deliver tailored, actionable recommendations—drive its powerful, context-aware functionality. Additionally, a range of other agents such as Flux Prompter, several Custom Instructors, a Python debugger and scripter, and many more further extend its capabilities.
 
-<img width="1446" alt="image" src="https://github.com/user-attachments/assets/4740493e-ab05-4a6b-b3c4-753351d38318" />
-
+<img width="1263" alt="Bildschirmfoto 2025-02-06 um 11 05 19" src="https://github.com/user-attachments/assets/d4622bfe-c358-4f51-8dc4-cbf3d9880a70" />
 ---
 
 ## Overview
