@@ -3,12 +3,10 @@ import sys
 import json
 import os
 import re
-import random
 import base64
 import numpy as np
 from io import BytesIO
 from PIL import Image
-from jax import config
 import openai
 from googlesearch import search
 import requests
