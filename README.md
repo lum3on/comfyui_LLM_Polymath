@@ -4,22 +4,6 @@ An advanced Chat Node for ComfyUI that integrates large language models to build
 <img width="1263" alt="Bildschirmfoto 2025-02-06 um 11 05 19" src="https://github.com/user-attachments/assets/d4622bfe-c358-4f51-8dc4-cbf3d9880a70" />
 ---
 
-## Overview
-
-The LLM Polymath Chat Node is built to serve as a “polymath” in the digital world, able to fetch additional context from the web and merge that data with a user’s query. Whether you’re working with conversational prompts, visual inputs, or integrating specialized instructions, this node streamlines interactions with LLM`s while maintaining context and flexibility.
-
-Key capabilities include:
-
-- **Prompt Augmentation:** Inserts additional text into your prompt dynamically.
-- **Web Integration:** Searches for URLs in your prompt and fetches content from them. It can also perform a Google search (using the `googlesearch` library) to retrieve supplementary results.
-- **Model Selection:** Merges model configurations from a local `config.json` file and from an Ollama API endpoint, providing a list of available models.
-- **Custom Instructions:** Supports loading extra directives from a `custom_instructions` folder. When using the “node finder” instruction, it can even load data from a custom node list.
-- **Image Support:** Accepts image tensors, converts them to a PIL image, and encodes them in base64 for inclusion in the prompt.
-- **Context Preservation:** Maintains a chat history if enabled so that interactions remain coherent over multiple exchanges.
-- **Output Compression:** Optionally instructs the language model to generate more concise responses by enforcing character limits.
-
----
-
 ## Features
 
 ### Prompt Processing
