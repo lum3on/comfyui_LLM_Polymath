@@ -6,11 +6,18 @@ import re
 import base64
 import numpy as np
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageOps, ImageSequence
 import openai
 from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
+
+# For the Scraper
+import boto3
+import torch
+import comfy.utils
+from PIL.PngImagePlugin import PngInfo
+import folder_paths
 
 api_key = os.getenv("OPENAI_API_KEY")
 
@@ -361,11 +368,91 @@ class Polymath:
                 print(f"Ollama API Response: {output_text}")
             return (output_text,)
 
+def pil2tensor(image):
+    return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)
+
+class MediaScraper:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "urls": ("STRING", {"default": "", "multiline": True, "dynamicPrompts": False}),
+                "output_file_path": ("STRING", {"multiline": False, "default": ""}),
+                "file_name": ("STRING", {"multiline": False, "default": ""}),
+            },
+            "optional": {
+                "image_load_cap": ("INT", {"default": 0, "min": 0, "step": 1})
+            }
+        }
+    
+    RETURN_TYPES = ("IMAGE", "STRING")
+    RETURN_NAMES = ("images", "filename_text")
+    FUNCTION = "execute"
+    CATEGORY = "Polymath"
+    OUTPUT_IS_LIST = (True, False)
+
+    def execute(self, urls, output_file_path, file_name, image_load_cap=0):
+        url_list = [u.strip() for u in urls.split("\n") if u.strip()]
+        downloaded_files = []
+
+        # Download step: Run gallery-dl for each URL
+        for url in url_list:
+            if image_load_cap > 0 and len(downloaded_files) >= image_load_cap:
+                break
+            cmd = ["gallery-dl", url]
+            if output_file_path:
+                cmd.extend(["-d", output_file_path])
+            if image_load_cap > 0:
+                cap = image_load_cap - len(downloaded_files)
+                cmd.extend(["--range", f"1-{cap}"])
+            subprocess.run(cmd)
+
+        # List all downloaded files from the output directory
+        valid_extensions = ('.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif')
+        if output_file_path and os.path.isdir(output_file_path):
+            for root, dirs, files in os.walk(output_file_path):
+                for f in sorted(files):
+                    if f.lower().endswith(valid_extensions):
+                        full_path = os.path.join(root, f)
+                        downloaded_files.append(full_path)
+                        if image_load_cap > 0 and len(downloaded_files) >= image_load_cap:
+                            break
+                if image_load_cap > 0 and len(downloaded_files) >= image_load_cap:
+                    break
+
+        # Batch rename if file_name is provided
+        if file_name and downloaded_files:
+            base, ext = os.path.splitext(file_name)
+            ext = ext if ext else ".jpg"
+            for idx, old_path in enumerate(downloaded_files, start=1):
+                new_name = f"{base}_{idx}{ext}"
+                new_path = os.path.join(os.path.dirname(old_path), new_name)
+                os.rename(old_path, new_path)
+                downloaded_files[idx-1] = new_path
+
+        valid_files = [f for f in downloaded_files if os.path.isfile(f) and f.lower().endswith(valid_extensions)]
+        filename_text = ", ".join(os.path.basename(f) for f in valid_files)
+        
+        images = []
+        for file_path in valid_files:
+            try:
+                img = Image.open(file_path)
+                images.append(pil2tensor(img))
+            except Exception:
+                pass
+
+        if not images:
+            images.append(torch.ones(3, 100, 100))
+        
+        return (images, filename_text)
+
 
 NODE_CLASS_MAPPINGS = {
-    "polymath_chat": Polymath
+    "polymath_chat": Polymath,
+    "polymath_scraper": MediaScraper
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "polymath_chat": "LLM Polymath Chat with Advanced Web and Link Search"
+    "polymath_chat": "LLM Polymath Chat with Advanced Web and Link Search",
+    "polymath_scraper": "LLM Polymath Scraper for various sites"
 }

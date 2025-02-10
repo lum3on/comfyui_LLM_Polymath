@@ -1,10 +1,13 @@
-from .polymath import Polymath
+from .polymath import Polymath, MediaScraper
 
 NODE_CLASS_MAPPINGS = {
-    "polymath_chat": Polymath
+    "polymath_chat": Polymath,
+    "polymath_scraper": MediaScraper
 }
+
 NODE_DISPLAY_NAME_MAPPINGS = {
     "polymath_chat": "LLM Polymath Chat with Advanced Web and Link Search",
+    "polymath_scraper": "LLM Polymath Scraper for various sites"
 }
 
 ascii_art = """
