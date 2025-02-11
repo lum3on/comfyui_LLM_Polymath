@@ -92,7 +92,7 @@
         false,
         true,
         7,
-        true,
+        false,
         false,
         "soft",
         true
@@ -130,14 +130,24 @@
   "config": {},
   "extra": {
     "ds": {
-      "scale": 0.5054470284993297,
+      "scale": 1.7449402268886445,
       "offset": [
-        -703.8863343158873,
-        938.2237568926421
+        -1824.893573345847,
+        464.8039152587694
       ]
     },
     "node_versions": {
-      "ComfyUI-Universal-Styler": "bfe88489ff250a84bc25c210d84a58135f9a8a8f"
+      "comfyui-custom-scripts": "1.1.0",
+      "comfyui_LLM_Polymath": "7ad85e7feac114997edeaf96773ee88616b22731"
+    },
+    "info": {
+      "name": "workflow",
+      "author": "",
+      "description": "",
+      "version": "1",
+      "created": "2025-02-11T00:27:55.117Z",
+      "modified": "2025-02-11T00:27:55.117Z",
+      "software": "ComfyUI"
     }
   },
   "version": 0.4
