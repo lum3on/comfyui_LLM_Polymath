@@ -123,6 +123,9 @@ class OllamaAPI:
             "prompt": prompt,
             "stream": stream,
             "keep_alive": keep_alive,
+            "options": {
+                "num_ctx": 4096
+            }
         }
         if images:
             payload["images"] = images
