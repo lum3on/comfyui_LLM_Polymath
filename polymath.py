@@ -6,18 +6,14 @@ import re
 import base64
 import numpy as np
 from io import BytesIO
-from PIL import Image, ImageOps, ImageSequence
+from PIL import Image
 import openai
 from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
 
 # For the Scraper
-import boto3
 import torch
-import comfy.utils
-from PIL.PngImagePlugin import PngInfo
-import folder_paths
 
 api_key = os.getenv("OPENAI_API_KEY")
 

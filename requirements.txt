@@ -4,4 +4,3 @@ requests
 bs4
 jax
 gallery-dl
-boto3
