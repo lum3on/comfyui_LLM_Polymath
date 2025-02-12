@@ -115,28 +115,45 @@ def fetch_and_extract_content(url):
 class OllamaAPI:
     def __init__(self, base_url="http://localhost:11434"):
         self.base_url = base_url
+        self.chat_history = []
 
-    def generate_completion(self, model, prompt, stream=False, keep_alive=5, images=None):
-        url = f"{self.base_url}/api/generate"
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "stream": stream,
-            "keep_alive": keep_alive,
-            "options": {
-                "num_ctx": 4096
+    def generate_completion(self, model, prompt, stream=False, keep_alive=5, ollama_chat_mode=False, images=None):
+        url = f"{self.base_url}/api/chat" if ollama_chat_mode else f"{self.base_url}/api/generate"
+
+        if ollama_chat_mode:
+            # Append the new user message to the chat history
+            self.chat_history.append({"role": "user", "content": prompt})
+            payload = {
+                "model": model,
+                "messages": self.chat_history,  # Include the entire chat history
+                "stream": stream,
+                "keep_alive": keep_alive
             }
-        }
+        else:
+            payload = {
+                "model": model,
+                "prompt": prompt,
+                "stream": stream,
+                "keep_alive": keep_alive
+            }
+
         if images:
             payload["images"] = images
 
         response = requests.post(url, json=payload)
         response.raise_for_status()
-        return response.json()
+        response_json = response.json()
+
+        if ollama_chat_mode:
+            # Append the model's response to the chat history
+            self.chat_history.append({"role": "assistant", "content": response_json.get('message', {}).get('content', '')})
+
+        return response_json
 
 class Polymath:
     chat_history = []
     default_model = None
+    ollama_api = OllamaAPI()  # Class-level instance of OllamaAPI
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -162,12 +179,13 @@ class Polymath:
                 "model": (models_list, {"default": default_model}),
                 "custom_instruction": (custom_instructions_list, {"default": "None"}),
                 "enable_web_search": ("BOOLEAN", {"default": False}),
-                "list_sources": ("BOOLEAN", {"default": True}),
+                "list_sources": ("BOOLEAN", {"default": False}),
                 "num_search_results": ("INT", {"default": 5, "min": 1, "max": 10}),
                 "keep_context": ("BOOLEAN", {"default": True}),
+                "ollama_chat_mode": ("BOOLEAN", {"default": False}),
                 "compress": ("BOOLEAN", {"default": False}),
                 "compression_level": (["soft", "medium", "hard"],),
-                "Console_log": ("BOOLEAN", {"default": True}),
+                "console_log": ("BOOLEAN", {"default": True}),
                 "image": ("IMAGE",),
             }
         }
@@ -191,8 +209,7 @@ class Polymath:
 
     def execute(
         self, prompt, additional_text, seed, model=None, custom_instruction="None",
-        enable_web_search=False, list_sources=True, num_search_results=3, keep_context=True,
-        compress=False, compression_level="soft", Console_log=True, image=None
+        enable_web_search=False, list_sources=False, num_search_results=3, keep_context=True, ollama_chat_mode=False, compress=False, compression_level="soft", console_log=True, image=None
     ):
         selected_model_value = models_dict.get(model)
         if not selected_model_value:
@@ -201,11 +218,11 @@ class Polymath:
             if not selected_model_value:
                 return ("Error: No valid model found.",)
 
-        if Console_log:
+        if console_log:
             print(
-                f"Polymath Chat Request: Model='{model}', Prompt='{prompt}', Additional Text='{additional_text}', "
-                f"Seed='{seed}', Web Search Enabled={enable_web_search}, Keep Context={keep_context}, "
-                f"Custom Instruction='{custom_instruction}'"
+                f"\033[92mPolymath Chat Request: \033[0mModel='{model}', Prompt='{prompt}', Additional Text='{additional_text}'", 
+                f"Seed='{seed}', Web Search Enabled={enable_web_search}, Keep Context={keep_context},"
+                f"Ollama Chat Mode={ollama_chat_mode}, Custom Instruction='{custom_instruction}'"
             )
 
         # Process additional_text using the given prompt:
@@ -259,7 +276,7 @@ class Polymath:
                         f"Original query: {augmented_prompt}\n\nNo relevant web search results or linked content found. "
                         "Please proceed with the original query."
                     )
-                    if Console_log:
+                    if console_log:
                         print("No relevant web search results or linked content found.")
             except Exception as e:
                 print(f"Web Search Error: {e}")
@@ -279,8 +296,9 @@ class Polymath:
                 f" Compress the output to be concise while retaining key visual details. MAX OUTPUT SIZE no more than "
                 f"{char_limit} characters."
             )
-            if Console_log:
-                print(augmented_prompt)
+            if console_log:
+                print(f"\033[92m{augmented_prompt}\033[0m")
+
         if list_sources:
             augmented_prompt += " Always list all fetched sources."
 
@@ -303,11 +321,11 @@ class Polymath:
 
         response = self.polymath_interaction(
             base_url, api_key, selected_model_value, augmented_prompt,
-            Console_log, keep_context, custom_instruction, b64=b64, 
+            console_log, keep_context, ollama_chat_mode, custom_instruction, b64=b64, 
         )
         return response
 
-    def polymath_interaction(self, base_url, api_key, model_value, prompt, Console_log, keep_context, custom_instruction, b64=None):
+    def polymath_interaction(self, base_url, api_key, model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, b64=None):
         
         if model_value.startswith(('gpt', 'o1', 'o3')):        
             client = openai.OpenAI(api_key=api_key, base_url=base_url)
@@ -341,30 +359,37 @@ class Polymath:
                 stream=False
             )
             output_text = completion.choices[0].message.content
-            if Console_log:
-                print(f"Polymath Chat Response: {output_text}")
+
+            if console_log:
+                print("\033[92mPolymath Chat Response:\033[0m", output_text)
             self.chat_history.append({"role": "user", "content": prompt})
             self.chat_history.append({"role": "assistant", "content": output_text})
+
             return (output_text,)
         
         else:
-            
-            ollama_api = OllamaAPI()
             images = None
 
             if b64:
                 images = [b64]
 
-            response = ollama_api.generate_completion(
+            response = self.ollama_api.generate_completion(
+                ollama_chat_mode=ollama_chat_mode,
                 model=model_value,
                 prompt=prompt,
                 stream=False,
                 keep_alive=5,
                 images=images
             )
-            output_text = response.get('response', '')
-            if Console_log:
-                print(f"Ollama API Response: {output_text}")
+
+            if ollama_chat_mode:
+                output_text = response.get('message', {}).get('content', '')
+            else:
+                output_text = response.get('response', '')
+
+            if console_log:
+                print("\033[92mOllama API Response:\033[0m", output_text)
+                
             return (output_text,)
 
 def pil2tensor(image):
