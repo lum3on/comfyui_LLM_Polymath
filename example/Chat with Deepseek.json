@@ -1,0 +1,280 @@
+{
+  "last_node_id": 5,
+  "last_link_id": 7,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "polymath_chat",
+      "pos": [
+        9426.759765625,
+        1784.141845703125
+      ],
+      "size": [
+        428.3999938964844,
+        666.0469360351562
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null,
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "write me a python script to downsacle images",
+        "",
+        738,
+        "randomize",
+        "thirdeyeai/DeepSeek-R1-Distill-Qwen-7B-uncensored:latest",
+        "None",
+        false,
+        false,
+        5,
+        true,
+        true,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 3,
+      "type": "Remove Text",
+      "pos": [
+        9886.3984375,
+        1785.7308349609375
+      ],
+      "size": [
+        315,
+        242
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "Text",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "Text"
+          },
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Text",
+          "type": "STRING",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "Removed_text",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 1
+        },
+        {
+          "name": "Troubleshooting",
+          "type": "STRING",
+          "links": [
+            4
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Remove Text",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "<think",
+        "think>",
+        1,
+        1,
+        true,
+        true,
+        ""
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 4,
+      "type": "ShowText|pysssss",
+      "pos": [
+        9890.306640625,
+        2091.1611328125
+      ],
+      "size": [
+        308.9433898925781,
+        234.1314697265625
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 4,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "",
+        "\n➤ Begin Log for: Remove Text, Node: 3:\n✦ INFO: Sucessfully removed text\n"
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    },
+    {
+      "id": 2,
+      "type": "ShowText|pysssss",
+      "pos": [
+        10225.8671875,
+        1780.89990234375
+      ],
+      "size": [
+        502.0865783691406,
+        621.4313354492188
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 6,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss",
+        "ttNbgOverride": {
+          "color": "#222",
+          "bgcolor": "#000",
+          "groupcolor": "#444"
+        }
+      },
+      "widgets_values": [
+        "",
+        "\n\nHere’s another Python script that downscales images using the Pillow library (PIL). This script will:\n1. Read an image file\n2. Resize it to a specified percentage or dimensions\n3. Save the resized image\n\n### Script:  \n```python\nfrom PIL import Image\nimport sys\n\ndef downscale_image(input_path, output_dir, quality=75):\n    \"\"\"Downscale an image using PIL\"\"\"\n    # Load the image\n    try:\n        img = Image.open(input_path)\n    except FileNotFoundError:\n        print(f\"Error: Input file {input_path} not found\")\n        return\n    \n    # Set resizing parameters\n    if quality == \"auto\":\n        # Reduce quality until the file size is small enough\n        max_size = (200, 150)  # Target size in pixels\n        img = img.resize(max_size, Image.LANCZOS)\n    else:\n        # Resize to a specific percentage of original size\n        img = img.resize(\n            (int(img.width * quality), \n             int(img.height * quality)),\n            Image.BILINEAR\n        )\n    \n    # Save the resized image\n    output_path = os.path.join(output_dir, input_path.split('/')[-1])\n    img.save(output_path, format='PNG')\n\ndef main():\n    script_name = __file__\n    input_dir = sys.argv[1]\n    output_dir = sys.argv[2]\n    \n    print(f\"\\nResizing images from {input_dir} to {output_dir}\")\n    print(\"Enter 'auto' for automatic quality resizing or a number (0-100) for percentage\")\n    print(\"Enter 'preserve_color' to maintain color balance in PNG files\")\n    print(\"For best results, use monochromatic images or low-resolution formats like JPG\\n\")\n    \n    # Get user input\n    try:\n        quality = int(sys.argv[3]) if len(sys.argv) > 3 else 75\n        mode = sys.argv[4] if len(sys.argv) > 4 else 'bilinear'\n        if mode.lower() == 'preserve_color':\n            img = Image.open(input_path).convert('PNG')\n            img.save(output_dir + '/' + input_path.split('/')[-1], format='PNG', quality=quality)\n            return\n    except ValueError:\n        print(\"Invalid argument provided for quality\")\n        sys.exit(1)\n\n    # Call the main function\n    downscale_image(input_path, output_dir, quality)\n\nif __name__ == \"__main__\":\n    main()\n```\n\n### How to Use This Script:\n1. Save this script with a `.py` extension.\n2. Open a terminal window and navigate to the directory containing your image files.\n3. Run the script using a command like:\n   ```bash\n   python downscaled_images.py input_dir output_dir\n   ```\n   \n4. Replace `input_dir` with the path to your image directory and `output_dir` with the path where you want the resized images to be saved.\n\n### Key Features:\n- Uses **Pillow** for image processing\n- Supports both **bilinear** and **LANCzos** interpolation methods\n- Allows resizing by percentage or dimensions\n- Automatically saves as PNG format (lossless compression)\n- Includes basic error handling\n\nThis script is a good balance between simplicity and functionality, making it suitable for general-purpose image downsampling tasks."
+      ],
+      "color": "#222",
+      "bgcolor": "#000"
+    }
+  ],
+  "links": [
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "STRING"
+    ],
+    [
+      4,
+      3,
+      2,
+      4,
+      0,
+      "STRING"
+    ],
+    [
+      6,
+      3,
+      0,
+      2,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.3513057093104217,
+      "offset": [
+        -9676.72163030712,
+        -1699.5052503317556
+      ]
+    },
+    "info": {
+      "name": "workflow",
+      "author": "",
+      "description": "",
+      "version": "1",
+      "created": "2025-02-12T15:29:57.789Z",
+      "modified": "2025-02-12T16:17:41.238Z",
+      "software": "ComfyUI"
+    },
+    "node_versions": {
+      "comfyui_LLM_Polymath": "3501654ddd356249861be1842734d6ae23afd1c7",
+      "Plush-for-ComfyUI": "8999643aa040c899670ecf6c459c648f6edaac3e",
+      "ComfyUI-Universal-Styler": "bfe88489ff250a84bc25c210d84a58135f9a8a8f"
+    }
+  },
+  "version": 0.4
+}
