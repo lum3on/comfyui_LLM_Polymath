@@ -410,10 +410,10 @@ class MediaScraper:
         }
     
     RETURN_TYPES = ("IMAGE", "STRING")
-    RETURN_NAMES = ("images", "filename_text")
+    RETURN_NAMES = ("images", "filepath_texts")
     FUNCTION = "execute"
     CATEGORY = "Polymath"
-    OUTPUT_IS_LIST = (True, False)
+    OUTPUT_IS_LIST = (True, True)
 
     def execute(self, urls, output_file_path, file_name, image_load_cap=0):
         url_list = [u.strip() for u in urls.split("\n") if u.strip()]
@@ -455,21 +455,24 @@ class MediaScraper:
                 downloaded_files[idx-1] = new_path
 
         valid_files = [f for f in downloaded_files if os.path.isfile(f) and f.lower().endswith(valid_extensions)]
-        filename_text = ", ".join(os.path.basename(f) for f in valid_files)
         
+        # Initialize empty lists for images and filepath_texts
         images = []
+        filepath_texts = []
+
         for file_path in valid_files:
             try:
                 img = Image.open(file_path)
                 images.append(pil2tensor(img))
+                filepath_texts.append(file_path)  # Add file path to the list
             except Exception:
                 pass
 
         if not images:
             images.append(torch.ones(3, 100, 100))
+            filepath_texts.append("")  # Add an empty string if no images are found
         
-        return (images, filename_text)
-
+        return (images, filepath_texts)
 
 NODE_CLASS_MAPPINGS = {
     "polymath_chat": Polymath,
