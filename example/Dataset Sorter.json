@@ -677,7 +677,7 @@
           "Node name for S&R": "ttN text",
           "enableTabs": false,
           "tabWidth": 65,
-          "tabXOffset": 10,
+          "tabXOffset": 0,
           "hasSecondTab": false,
           "secondTabText": "Send Back",
           "secondTabOffset": 80,
