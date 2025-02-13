@@ -633,7 +633,7 @@
           "Node name for S&R": "Primitive integer [Crystools]",
           "enableTabs": false,
           "tabWidth": 65,
-          "tabXOffset": 10,
+          "tabXOffset": 0,
           "hasSecondTab": false,
           "secondTabText": "Send Back",
           "secondTabOffset": 80,
