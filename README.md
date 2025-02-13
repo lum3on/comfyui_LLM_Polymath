@@ -71,6 +71,8 @@ An automated web scraper node designed for seamless gallery extraction, allowing
 
 Ideal for creating large, labeled datasets for AI model training, reducing manual effort and streamlining workflow efficiency.
 
+![Uploading image.png…]()
+
 ---
 
 ## Usage
