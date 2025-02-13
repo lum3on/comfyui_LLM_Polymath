@@ -4,3 +4,7 @@ requests
 bs4
 jax
 gallery-dl
+
+numpy
+Pillow
+json-repair

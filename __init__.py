@@ -1,13 +1,16 @@
 from .polymath import Polymath, MediaScraper
+from .helper import SaveAbs
 
 NODE_CLASS_MAPPINGS = {
     "polymath_chat": Polymath,
-    "polymath_scraper": MediaScraper
+    "polymath_scraper": MediaScraper,
+    "SaveAbsolute": SaveAbs
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "polymath_chat": "LLM Polymath Chat with Advanced Web and Link Search",
-    "polymath_scraper": "LLM Polymath Scraper for various sites"
+    "polymath_scraper": "LLM Polymath Scraper for various sites",
+    "SaveAbsolute": "Save Image to Absolute Path"
 }
 
 ascii_art = """
