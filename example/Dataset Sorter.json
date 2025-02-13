@@ -1,0 +1,880 @@
+{
+    "last_node_id": 68,
+    "last_link_id": 76,
+    "nodes": [
+      {
+        "id": 57,
+        "type": "ImageScaleDownToSize",
+        "pos": [
+          9010,
+          1620
+        ],
+        "size": [
+          315,
+          82
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 10,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "images",
+            "type": "IMAGE",
+            "link": 70
+          }
+        ],
+        "outputs": [
+          {
+            "name": "IMAGE",
+            "type": "IMAGE",
+            "links": [
+              59
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "ImageScaleDownToSize",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          128,
+          true
+        ]
+      },
+      {
+        "id": 44,
+        "type": "ttN text",
+        "pos": [
+          9010,
+          1470
+        ],
+        "size": [
+          320,
+          130
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 0,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "text",
+            "type": "STRING",
+            "links": [
+              63
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "Folder name",
+        "properties": {
+          "Node name for S&R": "ttN text",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65,
+          "ttNnodeVersion": "1.0.0"
+        },
+        "widgets_values": [
+          "_sorter"
+        ]
+      },
+      {
+        "id": 60,
+        "type": "ttN text",
+        "pos": [
+          8580,
+          1440
+        ],
+        "size": [
+          320,
+          130
+        ],
+        "flags": {},
+        "order": 1,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "text",
+            "type": "STRING",
+            "links": [
+              64,
+              66
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "load directory",
+        "properties": {
+          "Node name for S&R": "ttN text",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65,
+          "ttNnodeVersion": "1.0.0"
+        },
+        "widgets_values": [
+          "E:\\ai\\_DATASETS\\styles\\tumblr"
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 6,
+        "type": "ttN text",
+        "pos": [
+          8580,
+          1610
+        ],
+        "size": [
+          320,
+          130
+        ],
+        "flags": {},
+        "order": 2,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "text",
+            "type": "STRING",
+            "links": [
+              3
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "sort by",
+        "properties": {
+          "Node name for S&R": "ttN text",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65,
+          "ttNnodeVersion": "1.0.0"
+        },
+        "widgets_values": [
+          "single dominant color"
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 63,
+        "type": "ImpactSwitch",
+        "pos": [
+          9010,
+          1660
+        ],
+        "size": [
+          210,
+          122
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 9,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "input1",
+            "type": "STRING",
+            "link": 71,
+            "shape": 7
+          },
+          {
+            "name": "input2",
+            "type": "STRING",
+            "link": 72
+          },
+          {
+            "name": "input3",
+            "type": "STRING",
+            "link": null
+          },
+          {
+            "name": "select",
+            "type": "INT",
+            "link": 74,
+            "widget": {
+              "name": "select"
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "STRING",
+            "type": "STRING",
+            "links": [
+              73
+            ],
+            "slot_index": 0,
+            "label": "STRING"
+          },
+          {
+            "name": "selected_label",
+            "type": "STRING",
+            "links": null
+          },
+          {
+            "name": "selected_index",
+            "type": "INT",
+            "links": null
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "ImpactSwitch",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          1,
+          false
+        ]
+      },
+      {
+        "id": 5,
+        "type": "polymath_chat",
+        "pos": [
+          9200,
+          1590
+        ],
+        "size": [
+          428.3999938964844,
+          362
+        ],
+        "flags": {},
+        "order": 11,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "image",
+            "type": "IMAGE",
+            "link": 59,
+            "shape": 7
+          },
+          {
+            "name": "additional_text",
+            "type": "STRING",
+            "link": 3,
+            "widget": {
+              "name": "additional_text"
+            }
+          },
+          {
+            "name": "prompt",
+            "type": "STRING",
+            "link": 73,
+            "widget": {
+              "name": "prompt"
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "name": "STRING",
+            "type": "STRING",
+            "links": [
+              65
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "polymath_chat",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          "categorize this image into {additional_text}. output only the raw text, without any symbols.",
+          "",
+          655,
+          "fixed",
+          "gpt-4o-mini",
+          "None",
+          false,
+          true,
+          5,
+          true,
+          false,
+          "soft",
+          true,
+          true
+        ],
+        "color": "#9968f3",
+        "bgcolor": "#519b36"
+      },
+      {
+        "id": 41,
+        "type": "Text Concatenate",
+        "pos": [
+          9640,
+          1470
+        ],
+        "size": [
+          315,
+          178
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 12,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "text_a",
+            "type": "STRING",
+            "link": 64,
+            "widget": {
+              "name": "text_a"
+            },
+            "shape": 7
+          },
+          {
+            "name": "text_b",
+            "type": "STRING",
+            "link": 63,
+            "widget": {
+              "name": "text_b"
+            },
+            "shape": 7
+          },
+          {
+            "name": "text_c",
+            "type": "STRING",
+            "link": 65,
+            "widget": {
+              "name": "text_c"
+            },
+            "shape": 7
+          },
+          {
+            "name": "text_d",
+            "type": "STRING",
+            "link": null,
+            "widget": {
+              "name": "text_d"
+            },
+            "shape": 7
+          }
+        ],
+        "outputs": [
+          {
+            "name": "STRING",
+            "type": "STRING",
+            "links": [
+              76
+            ],
+            "slot_index": 0
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "Text Concatenate",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          "\\",
+          "true",
+          "",
+          "",
+          "",
+          ""
+        ]
+      },
+      {
+        "id": 66,
+        "type": "Primitive integer [Crystools]",
+        "pos": [
+          8360,
+          1630
+        ],
+        "size": [
+          210,
+          58
+        ],
+        "flags": {},
+        "order": 3,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "int",
+            "type": "INT",
+            "links": [
+              74
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "MODE",
+        "properties": {
+          "Node name for S&R": "Primitive integer [Crystools]",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          1
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 18,
+        "type": "LoadImageListFromDir //Inspire",
+        "pos": [
+          9010,
+          1540
+        ],
+        "size": [
+          320,
+          170
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 8,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "directory",
+            "type": "STRING",
+            "link": 66,
+            "widget": {
+              "name": "directory"
+            }
+          },
+          {
+            "name": "image_load_cap",
+            "type": "INT",
+            "link": 67,
+            "widget": {
+              "name": "image_load_cap"
+            },
+            "shape": 7
+          }
+        ],
+        "outputs": [
+          {
+            "name": "IMAGE",
+            "type": "IMAGE",
+            "links": [
+              70,
+              75
+            ],
+            "slot_index": 0,
+            "shape": 6
+          },
+          {
+            "name": "MASK",
+            "type": "MASK",
+            "links": null,
+            "shape": 6
+          },
+          {
+            "name": "FILE PATH",
+            "type": "STRING",
+            "links": null,
+            "shape": 6
+          }
+        ],
+        "properties": {
+          "Node name for S&R": "LoadImageListFromDir //Inspire",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          "E:\\ai\\_DATASETS\\styles\\tumblr",
+          10,
+          0,
+          false
+        ]
+      },
+      {
+        "id": 62,
+        "type": "Note",
+        "pos": [
+          8350,
+          1790
+        ],
+        "size": [
+          560,
+          220
+        ],
+        "flags": {},
+        "order": 4,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [],
+        "title": "Modes",
+        "properties": {},
+        "widgets_values": [
+          "Modes:\n\n--\nMODE 1: Dynamic categories:\n\nExample: \"single dominant color\" sorts it into dynamic folders named after colors it find.\n\n--\n\nMODE 2: Defined Categories:\n\nExample: \"desert, city, forest\" sorts it into these predefined categories. Everything that doesnt fit will be sorted into a folder named \"0\""
+        ],
+        "color": "#432",
+        "bgcolor": "#653"
+      },
+      {
+        "id": 68,
+        "type": "SaveAbsolute",
+        "pos": [
+          9820,
+          1510
+        ],
+        "size": [
+          226.8000030517578,
+          54
+        ],
+        "flags": {},
+        "order": 13,
+        "mode": 0,
+        "inputs": [
+          {
+            "name": "images",
+            "type": "IMAGE",
+            "link": 75
+          },
+          {
+            "name": "file_path",
+            "type": "STRING",
+            "link": 76,
+            "widget": {
+              "name": "file_path"
+            }
+          }
+        ],
+        "outputs": [],
+        "properties": {
+          "Node name for S&R": "SaveAbsolute",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          ""
+        ]
+      },
+      {
+        "id": 61,
+        "type": "Primitive integer [Crystools]",
+        "pos": [
+          8360,
+          1510
+        ],
+        "size": [
+          210,
+          58
+        ],
+        "flags": {},
+        "order": 5,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "int",
+            "type": "INT",
+            "links": [
+              67
+            ]
+          }
+        ],
+        "title": "load capap (0 = load all)",
+        "properties": {
+          "Node name for S&R": "Primitive integer [Crystools]",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65
+        },
+        "widgets_values": [
+          0
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 65,
+        "type": "ttN text",
+        "pos": [
+          9200,
+          2060
+        ],
+        "size": [
+          320,
+          130
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 6,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "text",
+            "type": "STRING",
+            "links": [
+              72
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "mode02",
+        "properties": {
+          "Node name for S&R": "ttN text",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65,
+          "ttNnodeVersion": "1.0.0"
+        },
+        "widgets_values": [
+          "categorize this image into {additional_text}. output only the raw text, without any symbols."
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 64,
+        "type": "ttN text",
+        "pos": [
+          9200,
+          2010
+        ],
+        "size": [
+          320,
+          130
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 7,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "text",
+            "type": "STRING",
+            "links": [
+              71
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "mode01",
+        "properties": {
+          "Node name for S&R": "ttN text",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65,
+          "ttNnodeVersion": "1.0.0"
+        },
+        "widgets_values": [
+          "categorize this image into {additional_text}. output only the raw text, without any symbols."
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      }
+    ],
+    "links": [
+      [
+        3,
+        6,
+        0,
+        5,
+        1,
+        "STRING"
+      ],
+      [
+        59,
+        57,
+        0,
+        5,
+        0,
+        "IMAGE"
+      ],
+      [
+        63,
+        44,
+        0,
+        41,
+        1,
+        "STRING"
+      ],
+      [
+        64,
+        60,
+        0,
+        41,
+        0,
+        "STRING"
+      ],
+      [
+        65,
+        5,
+        0,
+        41,
+        2,
+        "STRING"
+      ],
+      [
+        66,
+        60,
+        0,
+        18,
+        0,
+        "STRING"
+      ],
+      [
+        67,
+        61,
+        0,
+        18,
+        1,
+        "INT"
+      ],
+      [
+        70,
+        18,
+        0,
+        57,
+        0,
+        "IMAGE"
+      ],
+      [
+        71,
+        64,
+        0,
+        63,
+        0,
+        "*"
+      ],
+      [
+        72,
+        65,
+        0,
+        63,
+        1,
+        "STRING"
+      ],
+      [
+        73,
+        63,
+        0,
+        5,
+        2,
+        "STRING"
+      ],
+      [
+        74,
+        66,
+        0,
+        63,
+        3,
+        "INT"
+      ],
+      [
+        75,
+        18,
+        0,
+        68,
+        0,
+        "IMAGE"
+      ],
+      [
+        76,
+        41,
+        0,
+        68,
+        1,
+        "STRING"
+      ]
+    ],
+    "groups": [
+      {
+        "id": 1,
+        "title": "control",
+        "bounding": [
+          8350,
+          1370,
+          560,
+          380
+        ],
+        "color": "#3f789e",
+        "font_size": 24,
+        "flags": {}
+      }
+    ],
+    "config": {},
+    "extra": {
+      "ds": {
+        "scale": 0.9646149645000008,
+        "offset": [
+          -8146.848404926932,
+          -1238.0593445342838
+        ]
+      },
+      "ue_links": []
+    },
+    "version": 0.4
+  }
