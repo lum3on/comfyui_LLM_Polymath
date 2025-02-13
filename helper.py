@@ -40,7 +40,7 @@ class SaveAbs:
         _, extension = os.path.splitext(file_path)
 
         if extension:
-            # 是文件名，需要处理
+            # is the file name and needs to be processed
             file_path=os.path.dirname(file_path)
             # filename_prefix=
 
@@ -49,18 +49,18 @@ class SaveAbs:
         
     
         if not os.path.exists(file_path):
-            # 使用os.makedirs函数创建新目录
+            # Create a new directory using the os.makedirs function
             os.makedirs(file_path)
             print("dir created")
         else:
             print("dir already exists")
 
-        # 使用glob模块获取当前目录下的所有文件
+        # Use the glob module to get all files in the current directory
         if file_path=="":
             files = glob.glob(full_output_folder + '/*')
         else:
             files = glob.glob(file_path + '/*')
-        # 统计文件数量
+        # Number of statistical files
         file_count = len(files)
         counter+=file_count
         print('number of files',file_count,counter)
