@@ -646,51 +646,6 @@
         "bgcolor": "#353"
       },
       {
-        "id": 65,
-        "type": "ttN text",
-        "pos": [
-          9200,
-          2060
-        ],
-        "size": [
-          320,
-          130
-        ],
-        "flags": {
-          "collapsed": true
-        },
-        "order": 6,
-        "mode": 0,
-        "inputs": [],
-        "outputs": [
-          {
-            "name": "text",
-            "type": "STRING",
-            "links": [
-              72
-            ],
-            "slot_index": 0
-          }
-        ],
-        "title": "mode02",
-        "properties": {
-          "Node name for S&R": "ttN text",
-          "enableTabs": false,
-          "tabWidth": 65,
-          "tabXOffset": 10,
-          "hasSecondTab": false,
-          "secondTabText": "Send Back",
-          "secondTabOffset": 80,
-          "secondTabWidth": 65,
-          "ttNnodeVersion": "1.0.0"
-        },
-        "widgets_values": [
-          "categorize this image into {additional_text}. output only the raw text, without any symbols."
-        ],
-        "color": "#232",
-        "bgcolor": "#353"
-      },
-      {
         "id": 64,
         "type": "ttN text",
         "pos": [
@@ -704,7 +659,7 @@
         "flags": {
           "collapsed": true
         },
-        "order": 7,
+        "order": 6,
         "mode": 0,
         "inputs": [],
         "outputs": [
@@ -731,6 +686,51 @@
         },
         "widgets_values": [
           "categorize this image into {additional_text}. output only the raw text, without any symbols."
+        ],
+        "color": "#232",
+        "bgcolor": "#353"
+      },
+      {
+        "id": 65,
+        "type": "ttN text",
+        "pos": [
+          9200,
+          2060
+        ],
+        "size": [
+          320,
+          130
+        ],
+        "flags": {
+          "collapsed": true
+        },
+        "order": 7,
+        "mode": 0,
+        "inputs": [],
+        "outputs": [
+          {
+            "name": "text",
+            "type": "STRING",
+            "links": [
+              72
+            ],
+            "slot_index": 0
+          }
+        ],
+        "title": "mode02",
+        "properties": {
+          "Node name for S&R": "ttN text",
+          "enableTabs": false,
+          "tabWidth": 65,
+          "tabXOffset": 10,
+          "hasSecondTab": false,
+          "secondTabText": "Send Back",
+          "secondTabOffset": 80,
+          "secondTabWidth": 65,
+          "ttNnodeVersion": "1.0.0"
+        },
+        "widgets_values": [
+          "if this image includes any of the following {additional_text}, output only one of \"{additional_text}\". if it doesnt include anything specified, output \"0\". output only the raw text, without any symbols"
         ],
         "color": "#232",
         "bgcolor": "#353"
