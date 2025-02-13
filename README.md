@@ -57,6 +57,20 @@ ComfyUI Smart Assistant Instruction: An advanced, context-aware AI integration t
 
 <img width="662" alt="image" src="https://github.com/user-attachments/assets/3230a6cf-a783-4914-ba8f-f580c2f971d0" />
 
+
+**Polymath Scraper**
+
+An automated web scraper node designed for seamless gallery extraction, allowing users to input a gallery website URL and retrieve image data efficiently. Built on gallery-dl, it supports all websites listed in the official repository. with key keatures such as:
+
+- **URL-Based Extraction:** Simply input a gallery URL to fetch images.  
+- **Wide Website Support:** Compatible with all sites supported by gallery-dl.  
+- **Output-Ready for Training:** Provides structured outputs:  
+  - **List of Image Files:** Downloaded images ready for use.  
+  - **List of Filenames:** Organized for captioning and dataset creation.  
+- **Modular Integration:** Stack with the LLM Polymath Node for automated captioning, enabling end-to-end dataset preparation.  
+
+Ideal for creating large, labeled datasets for AI model training, reducing manual effort and streamlining workflow efficiency.
+
 ---
 
 ## Usage
