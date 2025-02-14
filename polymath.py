@@ -297,7 +297,7 @@ class Polymath:
                 f"{char_limit} characters."
             )
             if console_log:
-                print(f"\033[92m{augmented_prompt}\033[0m")
+                print(f"\033[92mFull Polymath Prompt\033[0m", augmented_prompt)
 
         if list_sources:
             augmented_prompt += " Always list all fetched sources."
