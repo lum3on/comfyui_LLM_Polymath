@@ -1,11 +1,15 @@
 import numpy as np
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
-import base64,os,random
+import base64,os,random, string
 import folder_paths
 import json,io
 from comfy.cli_args import args
 import math,glob
+
+def generate_random_string(length):
+        characters = string.ascii_letters + string.digits
+        return ''.join(random.choice(characters) for _ in range(length))
 
 class SaveAbs:
     def __init__(self):
