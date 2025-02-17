@@ -1,10 +1,8 @@
 from .polymath import Polymath, MediaScraper
-from .helper import SaveAbs
 
 NODE_CLASS_MAPPINGS = {
     "polymath_chat": Polymath,
-    "polymath_scraper": MediaScraper,
-    "polymath_SaveAbsolute": SaveAbs
+    "polymath_scraper": MediaScraper
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
