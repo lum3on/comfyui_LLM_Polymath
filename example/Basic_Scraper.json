@@ -1,0 +1,166 @@
+{
+  "last_node_id": 8,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "polymath_scraper",
+      "pos": [
+        130,
+        240
+      ],
+      "size": [
+        330,
+        216
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            1
+          ],
+          "slot_index": 0,
+          "shape": 6
+        },
+        {
+          "name": "filepath_texts",
+          "type": "STRING",
+          "links": [
+            2
+          ],
+          "slot_index": 1,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_scraper"
+      },
+      "widgets_values": [
+        "https://de.pinterest.com/search/pins/?q=%23cars&rs=typed",
+        "output/cars",
+        "cars",
+        4,
+        false,
+        false
+      ],
+      "color": "#9968f3",
+      "bgcolor": "#519b36"
+    },
+    {
+      "id": 3,
+      "type": "ShowText|pysssss",
+      "pos": [
+        520,
+        340
+      ],
+      "size": [
+        450,
+        226
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 2,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [],
+          "slot_index": 0,
+          "shape": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "/Users/benjaminbertram/ComfyUI/output/cars/cars_00002.png",
+        "/Users/benjaminbertram/ComfyUI/output/cars/cars_00003.png",
+        "/Users/benjaminbertram/ComfyUI/output/cars/cars_00004.png",
+        "/Users/benjaminbertram/ComfyUI/output/cars/cars_00005.png"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "PreviewImage",
+      "pos": [
+        1020,
+        210
+      ],
+      "size": [
+        310,
+        330
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 1
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "IMAGE"
+    ],
+    [
+      2,
+      1,
+      1,
+      3,
+      0,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": {
+        "0": 0,
+        "1": 0
+      }
+    },
+    "node_versions": {
+      "comfyui_LLM_Polymath": "3e224dd0a34628176137e2a6d24dc57471fc9570",
+      "ComfyUI-Custom-Scripts": "a53ef9b617ed1331640d7a2cd97644995908dc00",
+      "comfy-core": "0.3.14"
+    },
+    "ue_links": [],
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0,
+    "VHS_MetadataImage": true,
+    "VHS_KeepIntermediate": true
+  },
+  "version": 0.4
+}
