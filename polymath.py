@@ -421,13 +421,6 @@ class MediaScraper:
     OUTPUT_IS_LIST = (True, True)
 
     def save_images_custom(self, images, dest_folder, file_prefix, compress_level=4):
-        """
-        Saves the given tensor images into dest_folder using file_prefix as the name prefix.
-        Avoids overwriting existing files by incrementing an index.
-        """
-        import folder_paths
-        import glob
-
         # If no dest_folder is given, use ComfyUI's default
         if not dest_folder:
             dest_folder = folder_paths.get_output_directory()
@@ -450,8 +443,13 @@ class MediaScraper:
         full_output_folder, filename, counter, subfolder, _ = folder_paths.get_save_image_path(
             file_prefix or "ComfyUI", dest_folder, width, height
         )
-        existing_files = glob.glob(os.path.join(dest_folder, "*"))
-        counter += len(existing_files)
+        valid_exts = ('.png', '.jpg', '.jpeg', '.webp', '.bmp', '.gif')
+        existing_images = []
+        for ext in valid_exts:
+            pattern = os.path.join(dest_folder, f"{filename}_*{ext}")
+            existing_images.extend(glob.glob(pattern))
+
+        counter += len(existing_images)
 
         saved_paths = []
         for idx, image_tensor in enumerate(images, start=1):
@@ -478,7 +476,12 @@ class MediaScraper:
         return saved_paths
 
     def execute(self, urls, output_file_path, file_name, image_load_cap=0, preview_images=False, keep_temp_path=False):
-        # 1) Create a temp folder for downloads if both output path and file name are given.
+       
+        # Fallback: if output_file_path is empty, use output/scraped_by_polymath
+        if not output_file_path:
+            output_file_path = os.path.join(folder_paths.get_output_directory(), "scraped_by_polymath")
+        
+        # 1) Create a temp folder for downloads if both output path and file name are given.    
         if output_file_path and file_name:
             temp_folder = os.path.join(os.path.abspath(output_file_path), "__temp__")
             os.makedirs(temp_folder, exist_ok=True)
