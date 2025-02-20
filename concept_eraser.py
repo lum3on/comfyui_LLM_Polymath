@@ -43,7 +43,8 @@ class UCEEraserNode:
         model_clone.model.to(device)
         unet = model_clone.model.diffusion_model
         device = next(unet.parameters()).device
-        print(f"Model device: {device}")
+        model_dtype = next(unet.parameters()).dtype  # Get model's dtype (e.g., torch.float16)
+        print(f"Model device: {device}, dtype: {model_dtype}")
 
         # Parse concepts
         concepts_list = [c.strip() for c in concepts_to_erase.split(",") if c.strip()]
@@ -62,20 +63,21 @@ class UCEEraserNode:
             result = text_encoder.encode_from_tokens_scheduled(token_weight_pairs)
             if isinstance(result, list) and len(result) > 0 and isinstance(result[0], list) and len(result[0]) >= 2:
                 embedding = result[0][0]  # (1, max_length, 2048)
-                return embedding.mean(dim=1).squeeze(0).to(device)  # (2048)
+                return embedding.mean(dim=1).squeeze(0).to(device, dtype=model_dtype)  # (2048), cast to model dtype
             raise RuntimeError("Unexpected CLIP output: " + str(result))
 
-        # Compute embeddings
+        # Compute embeddings with model dtype
         erase_embeddings = torch.stack([get_text_embedding(c) for c in concepts_list])  # (num_concepts, 2048)
         baseline_embedding = get_text_embedding(baseline_concept)  # (2048)
-        print(f"Erase embeddings shape: {erase_embeddings.shape}, Baseline shape: {baseline_embedding.shape}")
+        print(f"Erase embeddings shape: {erase_embeddings.shape}, dtype: {erase_embeddings.dtype}")
+        print(f"Baseline shape: {baseline_embedding.shape}, dtype: {baseline_embedding.dtype}")
 
         # Process cross-attention layers
         for name, module in unet.named_modules():
             if "attn2" in name and hasattr(module, "to_v"):
                 print(f"Processing layer: {name}")
                 weight = module.to_v.weight
-                print(f"Original weight shape: {weight.shape}, norm: {weight.norm():.4f}")
+                print(f"Original weight shape: {weight.shape}, dtype: {weight.dtype}, norm: {weight.norm():.4f}")
                 out_dim, in_dim = weight.shape
 
                 if in_dim != baseline_embedding.shape[0]:
@@ -85,20 +87,18 @@ class UCEEraserNode:
                 v_star = torch.matmul(weight, baseline_embedding).unsqueeze(-1)  # (out_dim, 1), e.g., (640, 1)
                 C = erase_embeddings.T  # (in_dim, num_concepts), e.g., (2048, 1)
 
-                # Special case for single concept
+                # Single vs. multi-concept case
                 num_concepts = erase_embeddings.shape[0]
                 if num_concepts == 1:
-                    # For 1 concept, project erase_embedding out of baseline direction
                     c = erase_embeddings.squeeze(0)  # (2048)
                     dot_product = torch.dot(c, baseline_embedding)
                     projection = (dot_product / baseline_embedding.norm()**2) * baseline_embedding
                     adjusted_embedding = c - projection
                     new_weight = weight - (v_star @ adjusted_embedding.unsqueeze(0)) / (adjusted_embedding.norm()**2 + lambda_reg)
                 else:
-                    # Multiple concepts: original UCE
                     sum_v_c_T = v_star @ C.T  # (out_dim, in_dim), e.g., (640, 2048)
                     sum_c_c_T = C @ C.T       # (num_concepts, num_concepts)
-                    sum_c_c_T += lambda_reg * torch.eye(sum_c_c_T.shape[0], device=device)
+                    sum_c_c_T += lambda_reg * torch.eye(sum_c_c_T.shape[0], device=device, dtype=model_dtype)
 
                     try:
                         inverse_term = torch.linalg.inv(sum_c_c_T)
@@ -108,12 +108,12 @@ class UCEEraserNode:
 
                     new_weight = sum_v_c_T @ inverse_term @ C  # (out_dim, in_dim)
 
-                print(f"New weight shape: {new_weight.shape}, norm: {new_weight.norm():.4f}")
+                print(f"New weight shape: {new_weight.shape}, dtype: {new_weight.dtype}, norm: {new_weight.norm():.4f}")
                 with torch.no_grad():
                     if new_weight.shape != weight.shape:
                         print(f"Shape mismatch: {new_weight.shape} vs {weight.shape}. Skipping.")
                         continue
-                    module.to_v.weight.copy_(new_weight)
+                    module.to_v.weight.copy_(new_weight.to(dtype=weight.dtype))  # Ensure dtype matches
                     print(f"Weight change norm: {(new_weight - weight).norm():.4f}")
 
         print("UCE Eraser Node execution completed.")
