@@ -1,8 +1,13 @@
 from .polymath import Polymath, MediaScraper
+from .helper import SaveAbs
+from .concept_eraser import UCEEraserNode
 
 NODE_CLASS_MAPPINGS = {
     "polymath_chat": Polymath,
-    "polymath_scraper": MediaScraper
+    "polymath_scraper": MediaScraper,
+    "Helper": SaveAbs,
+    "UCEEraserNode": UCEEraserNode
+    
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
