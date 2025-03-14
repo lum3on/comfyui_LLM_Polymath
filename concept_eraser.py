@@ -1,6 +1,13 @@
 import torch
 from torch import nn
 import numpy as np
+import comfy.samplers
+import comfy.model_management
+
+
+dummy_positive = ""  # or an appropriate empty condition
+dummy_negative = ""
+dummy_cfg = 1.0
 
 class ConceptEraserNode:
     def __init__(self):
@@ -12,9 +19,12 @@ class ConceptEraserNode:
             "required": {
                 "unet": ("MODEL",),
                 "clip": ("CLIP",),
+                "vae": ("VAE",),              # Add VAE input
+                "scheduler": (comfy.samplers.KSampler.SCHEDULERS, {"default": "normal", "tooltip": "The scheduler controls how noise is gradually removed to form the image."}),
                 "concept_to_erase": ("STRING", {"default": "fox"}),
-                "guided_concept": ("STRING", {"default": ""}),
-                "erase_scale": ("FLOAT", {"default": 1.0, "min": 0.1, "max": 10.0, "step": 0.1}),
+                "few_shot_images": ("IMAGE",),  # Few-shot images input
+                "lr": ("FLOAT", {"default": 1e-5, "min": 1e-6, "max": 1e-4}),
+                "epochs": ("INT", {"default": 4, "min": 1, "max": 10}),
             }
         }
 
@@ -22,88 +32,76 @@ class ConceptEraserNode:
     FUNCTION = "erase_concept"
     CATEGORY = "model_patches"
 
-    def get_embedding(self, text, tokenizer, text_encoder, device, model_dtype):
-        """Generate embeddings from text using the tokenizer and text encoder."""
-        if not isinstance(text, str):
-            raise ValueError(f"Expected text to be a string, got {type(text)}: {text}")
+    def erase_concept(self, unet, clip, vae, scheduler, concept_to_erase, few_shot_images, lr, epochs):
+        # Clone CLIP to avoid modifying the original
+        clip_clone = clip.clone()
+        text_encoder = clip_clone.cond_stage_model  # Access CLIP's text encoder
+
+        # Identify target layers: MLP blocks and final self-attention
+        target_layers = []
+        for name, module in text_encoder.named_modules():
+            if "mlp" in name or ("self_attn" in name and "final_layer_norm" in name):
+                target_layers.append(name)
         
+        # Freeze all parameters except target layers
+        for param in text_encoder.parameters():
+            param.requires_grad = False
+        for name, param in text_encoder.named_parameters():
+            if any(layer in name for layer in target_layers):
+                param.requires_grad = True
+
+        # Set up optimizer
+        optimizer = torch.optim.Adam(
+            filter(lambda p: p.requires_grad, text_encoder.parameters()),
+            lr=lr,
+            betas=(0.9, 0.98),
+            weight_decay=1e-8
+        )
+
+        # Preprocess few-shot images into latents (assuming VAE is available)
         with torch.no_grad():
-            token_weight_pairs = tokenizer.tokenize_with_weights(text, return_word_ids=False)
-            result = text_encoder.encode_from_tokens_scheduled(token_weight_pairs)
+            latents = vae.encode(few_shot_images) * 0.18215
+            print("Latents shape:", latents.shape)
+
+        sampler = comfy.samplers.KSampler(
+            unet,
+            steps=1,  # use one step so we only perform the noise addition part
+            device = comfy.model_management.intermediate_device(),
+            sampler="Euler",  # or another valid sampler name from KSampler.SAMPLERS
+            scheduler=scheduler,     # pass the scheduler string here
+            denoise=1.0,
+            model_options=unet.model_options
+)
+        # Training loop
+        for epoch in range(epochs):
+            # Add noise to latents
+
+            noise = torch.randn_like(latents)
+            timesteps = torch.randint(0, 1000, (latents.shape[0],))
+
+            noisy_latents = sampler.sample(
+                noise,
+                dummy_positive,
+                dummy_negative,
+                cfg=dummy_cfg,
+                latent_image=latents
+            )
+
+            # Forward pass through UNet with updated text encoder
+            tokens = clip_clone.tokenize(concept_to_erase)
+            print(dir(text_encoder))
+            text_embeds = text_encoder.encode_from_tokens(tokens)[0]            
+            noise_pred = unet(noisy_latents, timesteps, text_embeds).sample
+
+            # Maximize the loss (negative L2 loss)
+            loss = -torch.nn.functional.mse_loss(noise_pred, noise)
             
-            if isinstance(result, list) and len(result) > 0 and isinstance(result[0], list) and len(result[0]) >= 2:
-                embedding = result[0][0]
-                embedding = embedding.to(device)
-                embedding_mean = embedding.mean(dim=1).squeeze(0).to(model_dtype)
-                # Normalize embeddings to prevent extreme updates
-                norm = embedding_mean.norm()
-                if norm > 1e-6:
-                    embedding_mean = embedding_mean / norm
-                return embedding_mean
-            raise RuntimeError(f"Unexpected CLIP output format: {result}")
+            # Backward pass
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-    def erase_concept(self, erase_scale, unet, clip, concept_to_erase, guided_concept):
-        # Clone the UNet to avoid modifying the original
-        unet_clone = unet.clone()
-        actual_model = unet_clone.model
-
-        # Get device and dtype from the model
-        device = next(actual_model.parameters()).device
-        model_dtype = next(actual_model.parameters()).dtype
-        actual_model.to(device)
-
-        # Access tokenizer and text encoder from clip
-        tokenizer = clip.tokenizer
-        text_encoder = clip  # Assuming clip acts as the text encoder
-
-        # Debugging output
-        print(f"Type of concept_to_erase: {type(concept_to_erase)}")
-        print(f"concept_to_erase: {concept_to_erase}")
-
-        # Get embeddings for the concepts, normalized
-        old_embedding = self.get_embedding(concept_to_erase, tokenizer, text_encoder, device, model_dtype)
-        new_embedding = self.get_embedding(guided_concept, tokenizer, text_encoder, device, model_dtype)
-
-        old_embeddings = [old_embedding]  # Support multiple concepts if needed
-
-        # Function to compute new weights with residual blending
-        def compute_new_weight(weight, old_embeddings, target_embedding, erase_scale):
-            in_dim = weight.shape[1]
-            mat1 = torch.zeros_like(weight, dtype=torch.float32, device=device)
-            mat2 = torch.zeros((in_dim, in_dim), dtype=torch.float32, device=device)
-            for old_emb in old_embeddings:
-                old_vec = old_emb.to(torch.float32).unsqueeze(1)
-                target_vec = target_embedding.to(torch.float32).unsqueeze(1)
-                target_proj = torch.matmul(weight.to(torch.float32), target_vec)
-                mat1 += erase_scale * torch.matmul(target_proj, old_vec.T)
-                mat2 += torch.matmul(old_vec, old_vec.T)
-            
-            # Increase regularization for stability
-            mat2 += 1e-2 * torch.eye(in_dim, device=device, dtype=torch.float32)
-            mat2_inv = torch.linalg.pinv(mat2)
-            new_update = torch.matmul(mat1, mat2_inv)
-
-            # Blend with original weight to preserve stability
-            alpha = min(erase_scale / 10.0, 1.0)  # Controlled blending
-            new_weight = (1 - alpha) * weight.to(torch.float32) + alpha * new_update
-            print(f"Weight update norm: {(new_weight - weight).norm().item():.4f}")
-            return new_weight.to(weight.dtype)
-
-        # Modify cross-attention layers, focusing on output blocks
-        for name, module in actual_model.named_modules():
-            if "attn2" in name and "output_blocks" in name:  # Focus on later layers
-                if hasattr(module, "to_k"):
-                    weight = module.to_k.weight
-                    new_weight = compute_new_weight(weight, old_embeddings, new_embedding, erase_scale)
-                    with torch.no_grad():
-                        module.to_k.weight.copy_(new_weight)
-                if hasattr(module, "to_v"):
-                    weight = module.to_v.weight
-                    new_weight = compute_new_weight(weight, old_embeddings, new_embedding, erase_scale)
-                    with torch.no_grad():
-                        module.to_v.weight.copy_(new_weight)
-
-        return (unet_clone,)
+        return (unet, clip_clone)  # Return updated CLIP
 
 # Register the nodes with ComfyUI
 NODE_CLASS_MAPPINGS = {

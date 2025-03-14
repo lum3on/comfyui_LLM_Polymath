@@ -1,0 +1,403 @@
+{
+  "last_node_id": 38,
+  "last_link_id": 60,
+  "nodes": [
+    {
+      "id": 37,
+      "type": "Note",
+      "pos": [
+        18.365644454956055,
+        418.15484619140625
+      ],
+      "size": [
+        293.9805603027344,
+        196.61434936523438
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "Some more phrase Commands:\nIf the inputed image is a photograph always start the prompt with: \"this photography\"\nIf the inputed image is a artwork always start the prompt with: \"this artwork\"\n Never repeat the same starting phrase.\nAs an AI image tagging expert, your task is to"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 38,
+      "type": "polymath_chat",
+      "pos": [
+        -254.38705444335938,
+        -138.53762817382812
+      ],
+      "size": [
+        428.3999938964844,
+        455
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "shape": 7,
+          "link": 60
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            58,
+            59
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "polymath_chat"
+      },
+      "widgets_values": [
+        "create a single, concise paragraph (50-70 words). Describe the main subject, setting, and mood, highlighting shapes, colors, textures, and unique features. Use natural lighting with minimal editing, employ bold compositions and uncoventional angles, and include additional elements like motion or weather.Ensure coherence, embrace imperfections, and avoid repetition. Always start with \"a photography\". Never repeat the same starting phrase.",
+        "",
+        0,
+        "randomize",
+        "gpt-4",
+        "None",
+        false,
+        false,
+        5,
+        true,
+        false,
+        false,
+        "soft",
+        true
+      ],
+      "color": "#9968f3",
+      "bgcolor": "#519b36"
+    },
+    {
+      "id": 27,
+      "type": "easy imageScaleDownToSize",
+      "pos": [
+        -534.3871459960938,
+        -138.53762817382812
+      ],
+      "size": [
+        210,
+        82
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 56
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "shape": 3,
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "easy imageScaleDownToSize"
+      },
+      "widgets_values": [
+        256,
+        true
+      ],
+      "color": "#ed7ccf",
+      "bgcolor": "#d968bb"
+    },
+    {
+      "id": 28,
+      "type": "CR Save Text To File",
+      "pos": [
+        196.7118682861328,
+        -132.80648803710938
+      ],
+      "size": [
+        409.9050598144531,
+        150
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "multiline_text",
+          "type": "STRING",
+          "widget": {
+            "name": "multiline_text"
+          },
+          "link": 59
+        },
+        {
+          "name": "file_name",
+          "type": "STRING",
+          "widget": {
+            "name": "file_name"
+          },
+          "link": 45
+        }
+      ],
+      "outputs": [
+        {
+          "name": "show_help",
+          "type": "STRING",
+          "shape": 3,
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CR Save Text To File"
+      },
+      "widgets_values": [
+        "",
+        "G:\\Meine Ablage\\datasets\\theleoinmymind",
+        "",
+        "txt"
+      ],
+      "color": "#4db7da",
+      "bgcolor": "#39a3c6"
+    },
+    {
+      "id": 21,
+      "type": "ShowText|pysssss",
+      "pos": [
+        194.75917053222656,
+        78.9010238647461
+      ],
+      "size": [
+        430,
+        240
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "text",
+          "label": "文本",
+          "type": "STRING",
+          "widget": {
+            "name": "text"
+          },
+          "link": 58
+        }
+      ],
+      "outputs": [
+        {
+          "name": "STRING",
+          "label": "字符串",
+          "type": "STRING",
+          "shape": 6,
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "widgets_values": [
+        "",
+        "A photography of a delicate flower, its petals a soft blend of white and pale pink, creating a serene and ethereal mood. The flower's unique shape, with a heart-like structure and two small circular openings, adds an element of mystery. The lighting is natural, casting subtle shadows that enhance the flower's texture. The composition is unconventional, with the flower slightly tilted, capturing its elegance and grace. The background is dark, emphasizing the flower's purity and beauty. This image evokes a sense of calm and wonder, showcasing nature's intricate details and the beauty of its creations."
+      ]
+    },
+    {
+      "id": 29,
+      "type": "Load Image Batch",
+      "pos": [
+        -595.2409057617188,
+        42.561302185058594
+      ],
+      "size": [
+        315,
+        270
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "shape": 3,
+          "links": [
+            50,
+            53,
+            56
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "filename_text",
+          "type": "STRING",
+          "shape": 3,
+          "links": [
+            45
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Load Image Batch"
+      },
+      "widgets_values": [
+        "incremental_image",
+        0,
+        "closed",
+        "G:\\Meine Ablage\\datasets\\theleoinmymind",
+        "*",
+        "false",
+        "false",
+        "false",
+        "true"
+      ],
+      "color": "#4db7da",
+      "bgcolor": "#39a3c6"
+    },
+    {
+      "id": 31,
+      "type": "PreviewImage",
+      "pos": [
+        648.1741333007812,
+        -1.9349063634872437
+      ],
+      "size": [
+        279.68865966796875,
+        310.4488830566406
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 50
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    }
+  ],
+  "links": [
+    [
+      45,
+      29,
+      1,
+      28,
+      1,
+      "STRING"
+    ],
+    [
+      50,
+      29,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      53,
+      29,
+      0,
+      36,
+      0,
+      "*"
+    ],
+    [
+      56,
+      29,
+      0,
+      27,
+      0,
+      "IMAGE"
+    ],
+    [
+      58,
+      38,
+      0,
+      21,
+      0,
+      "STRING"
+    ],
+    [
+      59,
+      38,
+      0,
+      28,
+      0,
+      "STRING"
+    ],
+    [
+      60,
+      27,
+      0,
+      38,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Polymath Caption RIG",
+      "bounding": [
+        -635.275634765625,
+        -218.29847717285156,
+        1731.89794921875,
+        582.25830078125
+      ],
+      "color": "#b58b2a",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 1.4641000000000013,
+      "offset": [
+        1062.6217535488938,
+        469.67244098316166
+      ]
+    },
+    "info": {
+      "name": "workflow",
+      "author": "",
+      "description": "",
+      "version": "1",
+      "created": "2025-03-14T09:56:56.103Z",
+      "modified": "2025-03-14T10:02:04.991Z",
+      "software": "ComfyUI"
+    },
+    "workspace_info": {
+      "id": "fmD__XZpFj36_jkuHASUE"
+    },
+    "node_versions": {
+      "comfyui_LLM_Polymath": "4d7f776bc86533623cefa84e73ee64a0bb6f2345",
+      "comfyui-easy-use": "63a1ca5ec6e9e3b02a338b34e56b3ed6938db061",
+      "ComfyUI_Comfyroll_CustomNodes": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+      "ComfyUI-Universal-Styler": "bfe88489ff250a84bc25c210d84a58135f9a8a8f",
+      "was-node-suite-comfyui": "393aecf91fe193f292f02421ac8262cc88ed2875",
+      "comfy-core": "0.3.26"
+    }
+  },
+  "version": 0.4
+}
