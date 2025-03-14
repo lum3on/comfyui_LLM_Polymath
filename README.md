@@ -18,8 +18,8 @@ An advanced Chat Node for ComfyUI that integrates large language models to build
 ### Model & API Integration
 - **Model Loading:** Loads model configurations from a local `config.json` file and fetches additional models from an Ollama API endpoint (`http://127.0.0.1:11434/api/tags`).
 - **API Selection:**  
-  - If the selected model’s name starts with `gpt`, `o1`, or `o3`, the node uses the OpenAI API (configured via an API key and base URL).
-  - For other model identifiers, the node falls back to using the Ollama API.
+  - The model automatically selects the API depending on which model is selected from the list. The polymath currently supports Grok, Gemini, Gemma, Deepseek, and Claude.
+  - If Ollama is installed and running, the node uses the Ollama API.
 - **Chat History:** Optionally retains context from previous interactions to allow for more natural, continuous conversations.
 
 ### Custom Instructions
@@ -110,19 +110,22 @@ The node exposes a range of configurable inputs:
    ```
 
 3. **Set the key in your Environment Variables:**
-   create a .env file in your comfy root folder and set your api-key in the file like this:
+   create a .env file in your comfy root folder and set your api-keys in the file like this:
    ```bash
    OPENAI_API_KEY="your_api_key_here"
+   ANTHROPIC_API_KEY="your_anthropic_api_key_here"
+   XAI_API_KEY="your_xai_api_key_here"
+   DEEPSEEK_API_KEY="your_deepseek_api_key_here"
+   GEMINI_API_KEY="your_gemini_api_key_here"
    ```
-Below is an updated section you can add to your README to explain that once a model is downloaded via Ollama, it will automatically appear in the model dropdown after restarting Comfy:
 
 ---
 
 ## Ollama Installation & Model Download
 
-OLAMA (Ollama) enables you to run large language models locally with a few simple commands. Follow these instructions to install OLAMA and download models.
+OLLAMA (Ollama) enables you to run large language models locally with a few simple commands. Follow these instructions to install OLLAMA and download models.
 
-### Installing OLAMA
+### Installing OLLAMA
 
 #### On macOS:
 Download the installer from the official website or install via Homebrew:
@@ -143,7 +146,7 @@ Visit the [Ollama Download Page](https://ollama.com/download) and run the provid
 
 ### Downloading Models
 
-Once OLAMA is installed, you can easily pull and run models. For example, to download the lightweight Gemma 2B model:
+Once OLLAMA is installed, you can easily pull and run models. For example, to download the lightweight Gemma 2B model:
 
 ```bash
 ollama pull gemma:2b
@@ -163,13 +166,13 @@ After you download a model via Ollama, it will automatically be listed in the mo
 
 ### Example Workflow
 
-1. **Install OLAMA** on your system using the method appropriate for your operating system.
+1. **Install OLLAMA** on your system using the method appropriate for your operating system.
 2. **Download a Model** with the `ollama pull` command or use the run command and the model gets auto downloaded.
 3. **Run the Model** with `ollama run <model-name>` to start a REPL and interact with it.
 4. **Keep the Cli open** so that Comfy can acess the local Olama api
 5. **Restart Comfy** to have the downloaded model automatically appear in the model dropdown for easy selection.
 
-By following these steps, you can quickly set up OLAMA on your machine and begin experimenting with different large language models locally.
+By following these steps, you can quickly set up OLLAMA on your machine and begin experimenting with different large language models locally.
 
 For further details on model customization and advanced usage, refer to the official documentation at [Ollama Docs](https://docs.ollama.com).
 
