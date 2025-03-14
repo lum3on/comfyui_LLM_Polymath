@@ -1,4 +1,6 @@
 openai
+anthropic
+
 googlesearch-python
 requests
 bs4

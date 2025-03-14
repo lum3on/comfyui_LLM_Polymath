@@ -7,7 +7,8 @@ import base64
 import numpy as np
 from io import BytesIO
 from PIL import Image
-import openai
+
+# For the Websearch
 from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
@@ -17,7 +18,11 @@ import torch
 import folder_paths
 import shutil
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key_oai = os.getenv("OPENAI_API_KEY")
+api_key_anthropic = os.getenv("ANTHROPIC_API_KEY")
+api_key_xai = os.getenv("XAI_API_KEY")
+api_key_deepseek = os.getenv("DEEPSEEK_API_KEY")
+api_key_gemini = os.getenv("GEMINI_API_KEY")
 
 # Get the node list
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -49,41 +54,42 @@ config_path = os.path.join(script_directory, 'config.json')
 ollama_url = "http://127.0.0.1:11434/api/tags"
 
 def load_models():
-    # Initialize dictionaries
     config_models = {}
-    ollama_models = {}
-
-    # Load models from config.json
+    base_urls = {}
     try:
         with open(config_path, 'r') as f:
             config_data = json.load(f)
-            config_models = config_data.get('models', {})
-            base_url = config_data.get('baseurl')
+            # Iterate over all configuration entries
+            for conf in config_data:
+                models = conf.get('models', {})
+                config_models.update(models)
+                # Store each baseurl keyed by something, e.g., the first model name
+                for name in models.keys():
+                    base_urls[name] = conf.get('baseurl')
     except FileNotFoundError:
         print(f"Error: config.json not found at {config_path}")
     except json.JSONDecodeError:
         print(f"Error: Could not decode JSON from {config_path}")
 
-    # Fetch models from Ollama API
+    # Fetch Ollama models (as before)
+    ollama_models = {}
     try:
         response = requests.get(ollama_url)
         response.raise_for_status()
         models = response.json().get('models', [])
-        ollama_models = {model['name']: model['name'] for model in models}
+        ollama_models = {
+            "Ollama: " + " ".join(model['name'].split(':')): model['name']
+        for model in models
+        }
     except requests.exceptions.RequestException as e:
         print(f"Error fetching Ollama models: {e}")
 
-    # Merge dictionaries
     merged_models = {**config_models, **ollama_models}
-     
-    # Create a list of model names
     models_list = list(merged_models.keys())
-
-    # Determine the default model
     default_model = models_list[0] if models_list else None
-    print("\033[92mPolymath loaded these models: \033[0m", f"\033[38;5;99m{models_list}\033[0m")
 
-    return base_url, merged_models, models_list, default_model
+    print("\033[92mPolymath loaded these models: \033[0m", f"\033[38;5;99m{models_list}\033[0m")
+    return base_urls, merged_models, models_list, default_model
 
 # Load models and set default
 base_url, models_dict, models_list, default_model = load_models()
@@ -220,6 +226,8 @@ class Polymath:
             if not selected_model_value:
                 return ("Error: No valid model found.",)
 
+        selected_base_url = base_url.get(model)
+
         if console_log:
             print(
                 f"\033[92mPolymath Chat Request: \033[0mModel='{model}', Prompt='{prompt}', Additional Text='{additional_text}'", 
@@ -322,59 +330,152 @@ class Polymath:
             b64 = self.encode_image(pil_image)
 
         response = self.polymath_interaction(
-            base_url, api_key, selected_model_value, augmented_prompt,
-            console_log, keep_context, ollama_chat_mode, custom_instruction, b64=b64, 
+            selected_base_url,
+            api_key_oai,
+            api_key_anthropic,
+            api_key_xai,
+            api_key_deepseek,
+            api_key_gemini,
+            selected_model_value,
+            augmented_prompt,
+            console_log,
+            keep_context,
+            ollama_chat_mode,
+            custom_instruction,
+            b64=b64,
         )
         return response
 
-    def polymath_interaction(self, base_url, api_key, model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, b64=None):
-        
-        if model_value.startswith(('gpt', 'o1', 'o3')):        
-            client = openai.OpenAI(api_key=api_key, base_url=base_url)
+    def polymath_interaction(self, selected_base_url, api_key_oai, api_key_anthropic, api_key_xai, api_key_deepseek, api_key_gemini,
+                            model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, b64=None):
+        # OpenAI-based models (e.g., GPT, o1, o3)
+        if model_value.startswith(('gpt', 'o1', 'o3')):
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
             messages = []
             if custom_instruction != "None":
-                instruction_path = os.path.join(custom_instructions_directory, f"{custom_instruction}.txt")
                 try:
-                    with open(instruction_path, 'r') as f:
+                    with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
                         system_instruction = f.read()
                         messages.append({"role": "system", "content": system_instruction})
-                except FileNotFoundError:
-                    print(f"Error: Custom instruction file '{instruction_path}' not found.")
                 except Exception as e:
-                    print(f"Error reading custom instruction file: {e}")
-
+                    print("Error reading custom instruction file:", e)
             if keep_context and self.chat_history:
                 messages.extend(self.chat_history)
-            if b64:
-                image_data = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
-                user_content = [
-                    {"type": "text", "text": prompt},
-                    image_data
-                ]
-                messages.append({"role": "user", "content": user_content})
-            else:
-                messages.append({"role": "user", "content": prompt})
-
+            messages.append({"role": "user", "content": prompt})
             completion = client.chat.completions.create(
                 model=model_value,
                 messages=messages,
                 stream=False
             )
             output_text = completion.choices[0].message.content
-
-            if console_log:
-                print("\033[92mPolymath Chat Response:\033[0m", output_text)
-            self.chat_history.append({"role": "user", "content": prompt})
-            self.chat_history.append({"role": "assistant", "content": output_text})
-
+            self.chat_history.extend([{"role": "user", "content": prompt},
+                                    {"role": "assistant", "content": output_text}])
             return (output_text,)
-        
+
+        # Anthropic (e.g., Claude models) branch
+        elif model_value.startswith('claude'):
+            from anthropic import Anthropic
+            client = Anthropic(api_key=api_key_anthropic)
+            messages = []
+            if custom_instruction != "None":
+                try:
+                    with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
+                        system_instruction = f.read()
+                        messages.append({"role": "system", "content": system_instruction})
+                except Exception as e:
+                    print("Error reading custom instruction file:", e)
+            if keep_context and self.chat_history:
+                messages.extend(self.chat_history)
+            messages.append({"role": "user", "content": prompt})
+            completion = client.messages.create(
+                model=model_value,
+                max_tokens=1024,
+                messages=messages
+            )
+            output_text = completion.content
+            self.chat_history.extend([{"role": "user", "content": prompt},
+                                    {"role": "assistant", "content": output_text}])
+            return (output_text,)
+
+        # x.ai / Grok branch
+        elif model_value.startswith('grok'):
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key_xai, base_url=selected_base_url)
+            messages = []
+            if custom_instruction != "None":
+                try:
+                    with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
+                        system_instruction = f.read()
+                        messages.append({"role": "system", "content": system_instruction})
+                except Exception as e:
+                    print("Error reading custom instruction file:", e)
+            if keep_context and self.chat_history:
+                messages.extend(self.chat_history)
+            messages.append({"role": "user", "content": prompt})
+            completion = client.chat.completions.create(
+                model=model_value,
+                messages=messages
+            )
+            output_text = completion.choices[0].message.content
+            self.chat_history.extend([{"role": "user", "content": prompt},
+                                    {"role": "assistant", "content": output_text}])
+            return (output_text,)
+
+        # DeepSeek branch (compatible with OpenAI SDK)
+        elif model_value.startswith('deepseek'):
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key_deepseek, base_url=selected_base_url)
+            messages = []
+            if custom_instruction != "None":
+                try:
+                    with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
+                        system_instruction = f.read()
+                        messages.append({"role": "system", "content": system_instruction})
+                except Exception as e:
+                    print("Error reading custom instruction file:", e)
+            if keep_context and self.chat_history:
+                messages.extend(self.chat_history)
+            messages.append({"role": "user", "content": prompt})
+            completion = client.chat.completions.create(
+                model=model_value,
+                messages=messages,
+                stream=False
+            )
+            output_text = completion.choices[0].message.content
+            self.chat_history.extend([{"role": "user", "content": prompt},
+                                    {"role": "assistant", "content": output_text}])
+            return (output_text,)
+
+        # Gemini branch
+        elif model_value.startswith(('gemini','gemma')):
+            from openai import OpenAI
+            client = OpenAI(api_key=api_key_gemini, base_url=selected_base_url)
+            messages = []
+            if custom_instruction != "None":
+                try:
+                    with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
+                        system_instruction = f.read()
+                        messages.append({"role": "system", "content": system_instruction})
+                except Exception as e:
+                    print("Error reading custom instruction file:", e)
+            if keep_context and self.chat_history:
+                messages.extend(self.chat_history)
+            messages.append({"role": "user", "content": prompt})
+            completion = client.chat.completions.create(
+                model=model_value,
+                messages=messages
+            )
+            output_text = completion.choices[0].message.content
+            self.chat_history.extend([{"role": "user", "content": prompt},
+                                    {"role": "assistant", "content": output_text}])
+            return (output_text,)
+
+        # Fallback to Ollama API
         else:
             images = None
-
             if b64:
                 images = [b64]
-
             response = self.ollama_api.generate_completion(
                 ollama_chat_mode=ollama_chat_mode,
                 model=model_value,
@@ -383,16 +484,14 @@ class Polymath:
                 keep_alive=5,
                 images=images
             )
-
             if ollama_chat_mode:
                 output_text = response.get('message', {}).get('content', '')
             else:
                 output_text = response.get('response', '')
-
             if console_log:
-                print("\033[92mOllama API Response:\033[0m", output_text)
-                
+                print("Ollama API Response:", output_text)
             return (output_text,)
+
 
 def pil2tensor(image):
     return torch.from_numpy(np.array(image).astype(np.float32) / 255.0).unsqueeze(0)

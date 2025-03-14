@@ -1,15 +1,44 @@
-{
+[
+  {
     "baseurl": "https://api.openai.com/v1",
     "models": {
-      "gpt-3.5": "gpt-3.5-turbo",
-      "gpt-4": "gpt-4-turbo",
-      "gpt-4o": "gpt-4o",
-      "gpt-4o-mini": "gpt-4o-mini",
+      "GPT 3.5": "gpt-3.5-turbo",
+      "GPT 4": "gpt-4-turbo",
+      "GPT 4o": "gpt-4o",
+      "GPT 4o Mini": "gpt-4o-mini",
       "o1": "o1",
-      "o1-mini": "o1-mini",
-      "o3-mini": "o3-mini",
-      "o1-preview": "o1-preview",
-      "gpt-4o-realtime-preview": "gpt-4o-realtime-preview",
-      "gpt-4o-mini-realtime-preview": "gpt-4o-mini-realtime-preview"
+      "o1 Mini": "o1-mini",
+      "o3 Mini": "o3-mini",
+      "o1 Preview": "o1-preview",
+      "GPT 4o Realtime Preview": "gpt-4o-realtime-preview",
+      "GPT 4o Mini Realtime Preview": "gpt-4o-mini-realtime-preview"
+    }
+  },
+  {
+    "baseurl": "https://api.anthropic.com/v1",
+    "models": {
+      "Claude 3.7 Sonnet": "claude-3-7-sonnet-20250219",
+      "Claude 3.5 Sonnet": "claude-3-5-sonnet-20241022"
+    }
+  },
+  {
+    "baseurl": "https://api.x.ai/v1",
+    "models": {
+      "Grok 2 Vision": "grok-2-vision-1212",
+      "Grok 2": "grok-2-1212"    }
+  },
+  {
+    "baseurl": "https://api.deepseek.com",
+    "models": {
+      "Deepseek Chat": "deepseek-chat",
+      "Deepseek Reasoner": "deepseek-reasoner"}
+  },
+  {
+    "baseurl": "https://generativelanguage.googleapis.com/v1beta",
+    "models": {
+      "Gemini 2.0 Flash": "gemini-2.0-flash-exp",
+      "Gemini 1.5 Flash": "gemini-1.5-flash",
+      "Gemma 3 27B": "gemma-3-27b-it"
     }
   }
+]
