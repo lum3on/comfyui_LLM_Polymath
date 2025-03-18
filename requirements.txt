@@ -2,7 +2,7 @@ google
 google-genai
 openai
 anthropic
-
+ollama>=0.4.7
 googlesearch-python
 requests
 bs4
