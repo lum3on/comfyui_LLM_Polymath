@@ -1,14 +1,14 @@
 from .polymath import Polymath, MediaScraper
 from .helper import SaveAbs
 from .concept_eraser import ConceptEraserNode
-from .dsd_sampler import DSDSampler
+#from .dsd_sampler import DSDSampler
 
 NODE_CLASS_MAPPINGS = {
     "polymath_chat": Polymath,
     "polymath_scraper": MediaScraper,
     "polymath_helper": SaveAbs,
-    "polymath_concept_eraser": ConceptEraserNode,
-    "polymath_dsd_sampler": DSDSampler
+    "polymath_concept_eraser": ConceptEraserNode
+    #"polymath_dsd_sampler": DSDSampler
     
 }
 
