@@ -198,7 +198,7 @@ class Polymath:
             }
         }
 
-    RETURN_TYPES = ("STRING",)
+    RETURN_TYPES = ("STRING","IMAGE")
     FUNCTION = "execute"
     CATEGORY = "Polymath"
 
@@ -362,6 +362,13 @@ class Polymath:
                     print("Error reading custom instruction file:", e)
             if keep_context and self.chat_history:
                 messages.extend(self.chat_history)
+            if b64:
+                 image_data = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
+                 user_content = [
+                     {"type": "text", "text": prompt},
+                     image_data
+                 ]
+                 messages.append({"role": "user", "content": user_content})
             messages.append({"role": "user", "content": prompt})
             completion = client.chat.completions.create(
                 model=model_value,
@@ -449,27 +456,63 @@ class Polymath:
 
         # Gemini branch
         elif model_value.startswith(('gemini','gemma')):
-            from openai import OpenAI
-            client = OpenAI(api_key=api_key_gemini, base_url=selected_base_url)
-            messages = []
+            from google import genai
+            from google.genai import types
+            from PIL import Image
+            from io import BytesIO
+            import os
+
+            # Initialize the Gemini client (using your Gemini API key)
+            client = genai.Client(api_key=api_key_gemini)
+
             if custom_instruction != "None":
                 try:
                     with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
-                        system_instruction = f.read()
-                        messages.append({"role": "system", "content": system_instruction})
+                        custom_instr = f.read()
                 except Exception as e:
                     print("Error reading custom instruction file:", e)
-            if keep_context and self.chat_history:
-                messages.extend(self.chat_history)
-            messages.append({"role": "user", "content": prompt})
-            completion = client.chat.completions.create(
+                    custom_instr = ""
+            else:
+                custom_instr = ""
+                
+            # Combine custom instructions (if any) with the prompt.
+            prompt_text = (custom_instr + "\n" + prompt).strip() if custom_instr else prompt
+
+            # Build the contents for the generation call.
+            # If a base64 image is provided, decode it into a PIL Image and pass a list [prompt_text, pil_image]
+            if b64:
+                image_bytes = base64.b64decode(b64)
+                pil_image = Image.open(BytesIO(image_bytes))
+                contents = [prompt_text, pil_image]
+            else:
+                contents = prompt_text
+
+            # Call the model with a configuration that asks for both text and image outputs.
+            response = client.models.generate_content(
                 model=model_value,
-                messages=messages
+                contents=contents,
+                config=types.GenerateContentConfig(response_modalities=["Text", "Image"])
             )
-            output_text = completion.choices[0].message.content
-            self.chat_history.extend([{"role": "user", "content": prompt},
-                                    {"role": "assistant", "content": output_text}])
-            return (output_text,)
+
+            # Parse the response: concatenate all text parts and load any image part.
+            output_text = ""
+            output_image = None
+            for part in response.candidates[0].content.parts:
+                if part.text is not None:
+                    output_text += part.text
+                elif part.inline_data is not None:
+                    output_image = Image.open(BytesIO(part.inline_data.data))
+            if output_image is not None:
+                img_array = np.array(output_image).astype(np.float32) / 255.0
+                img_tensor = torch.from_numpy(img_array)
+            if img_tensor.dim() == 3:  # [H,W,C]
+                img_tensor = img_tensor.unsqueeze(0) 
+            # Update chat history with the conversation
+            self.chat_history.extend([
+                {"role": "user", "content": prompt},
+                {"role": "assistant", "content": output_text}
+            ])
+            return (output_text, img_tensor)
 
         # Fallback to Ollama API
         else:

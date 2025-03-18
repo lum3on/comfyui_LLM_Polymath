@@ -1,3 +1,5 @@
+google
+google-genai
 openai
 anthropic
 

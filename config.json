@@ -36,6 +36,7 @@
   {
     "baseurl": "https://generativelanguage.googleapis.com/v1beta",
     "models": {
+      "Gemini 2.0 Flash Image Generation": "gemini-2.0-flash-exp-image-generation",
       "Gemini 2.0 Flash": "gemini-2.0-flash-exp",
       "Gemini 1.5 Flash": "gemini-1.5-flash",
       "Gemma 3 27B": "gemma-3-27b-it"
