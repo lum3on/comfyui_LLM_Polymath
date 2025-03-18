@@ -9,7 +9,6 @@ NODE_CLASS_MAPPINGS = {
     "polymath_helper": SaveAbs,
     "polymath_concept_eraser": ConceptEraserNode
     #"polymath_dsd_sampler": DSDSampler
-    
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
