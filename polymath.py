@@ -418,8 +418,8 @@ class Polymath:
             completion = client.messages.create(
                 model=model_value,
                 max_tokens=1024,
-                messages=messages,
-                seed=seed
+                messages=messages
+                #seed=seed not yet supported
             )
             output_text = completion.content
             self.chat_history.extend([{"role": "user", "content": prompt},
