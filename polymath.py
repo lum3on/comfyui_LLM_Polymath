@@ -125,7 +125,7 @@ class OllamaAPI:
         self.base_url = base_url
         self.chat_history = []
 
-    def generate_completion(self, model, prompt, stream=False, keep_alive=5, ollama_chat_mode=False, images=None):
+    def generate_completion(self, model, prompt, stream=False, keep_alive=5, ollama_chat_mode=False, images=None, seed=42):
         url = f"{self.base_url}/api/chat" if ollama_chat_mode else f"{self.base_url}/api/generate"
 
         if ollama_chat_mode:
@@ -135,14 +135,16 @@ class OllamaAPI:
                 "model": model,
                 "messages": self.chat_history,  # Include the entire chat history
                 "stream": stream,
-                "keep_alive": keep_alive
+                "keep_alive": keep_alive,
+                "options": {"seed": seed}
             }
         else:
             payload = {
                 "model": model,
                 "prompt": prompt,
                 "stream": stream,
-                "keep_alive": keep_alive
+                "keep_alive": keep_alive,
+                "options": {"seed": seed}
             }
 
         if images:
@@ -358,12 +360,13 @@ class Polymath:
             keep_context,
             ollama_chat_mode,
             custom_instruction,
-            b64=b64,
+            seed,
+            b64=b64
         )
         return response
 
     def polymath_interaction(self, selected_base_url, api_key_oai, api_key_anthropic, api_key_xai, api_key_deepseek, api_key_gemini,
-                            model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, b64=None):
+                            model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, seed=42, b64=None):
         # OpenAI-based models (e.g., GPT, o1, o3)
         if model_value.startswith(('gpt', 'o1', 'o3')):
             from openai import OpenAI
@@ -389,7 +392,8 @@ class Polymath:
             completion = client.chat.completions.create(
                 model=model_value,
                 messages=messages,
-                stream=False
+                stream=False,
+                seed=seed
             )
             output_text = completion.choices[0].message.content
             self.chat_history.extend([{"role": "user", "content": prompt},
@@ -414,7 +418,8 @@ class Polymath:
             completion = client.messages.create(
                 model=model_value,
                 max_tokens=1024,
-                messages=messages
+                messages=messages,
+                seed=seed
             )
             output_text = completion.content
             self.chat_history.extend([{"role": "user", "content": prompt},
@@ -438,7 +443,8 @@ class Polymath:
             messages.append({"role": "user", "content": prompt})
             completion = client.chat.completions.create(
                 model=model_value,
-                messages=messages
+                messages=messages,
+                seed=seed
             )
             output_text = completion.choices[0].message.content
             self.chat_history.extend([{"role": "user", "content": prompt},
@@ -463,7 +469,8 @@ class Polymath:
             completion = client.chat.completions.create(
                 model=model_value,
                 messages=messages,
-                stream=False
+                stream=False,
+                seed=seed
             )
             output_text = completion.choices[0].message.content
             self.chat_history.extend([{"role": "user", "content": prompt},
@@ -510,7 +517,10 @@ class Polymath:
             response = client.models.generate_content(
                 model=model_value,
                 contents=contents,
-                config=types.GenerateContentConfig(response_modalities=["Text", "Image"])
+                config=types.GenerateContentConfig(
+                    response_modalities=["Text", "Image"],
+                    seed=seed,
+                ),
             )
 
             # Parse the response: concatenate all text parts and load any image part.
@@ -543,7 +553,8 @@ class Polymath:
                 prompt=prompt,
                 stream=False,
                 keep_alive=5,
-                images=images
+                images=images,
+                seed=seed
             )
             if ollama_chat_mode:
                 output_text = response.get('message', {}).get('content', '')
