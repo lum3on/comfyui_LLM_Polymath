@@ -202,18 +202,32 @@ class Polymath:
     FUNCTION = "execute"
     CATEGORY = "Polymath"
 
-    def tensor_to_pil(self, img_tensor):
-        arr = img_tensor.cpu().numpy() if hasattr(img_tensor, "cpu") else np.array(img_tensor)
-        arr = np.squeeze(arr)  # remove singleton dimensions
-        if arr.ndim == 3 and arr.shape[0] == 3:  # if in (C, H, W), transpose to (H, W, C)
-            arr = np.transpose(arr, (1, 2, 0))
-        arr = np.clip(255.0 * arr, 0, 255).astype(np.uint8)
-        return Image.fromarray(arr)
+    def tensor_to_pil(self, img_tensors):
+        def to_pil(img_tensor):
+            arr = img_tensor.cpu().numpy() if hasattr(img_tensor, "cpu") else np.array(img_tensor)
+            arr = np.squeeze(arr)
+            if arr.ndim == 3 and arr.shape[0] == 3:
+                arr = np.transpose(arr, (1, 2, 0))
+            arr = np.clip(255.0 * arr, 0, 255).astype(np.uint8)
+            return Image.fromarray(arr)
+        
+        if isinstance(img_tensors, (list, tuple)):
+            return [to_pil(t) for t in img_tensors]
+        elif hasattr(img_tensors, 'ndim') and img_tensors.ndim == 4:  # Batch tensor
+            return [to_pil(t) for t in img_tensors]
+        else:
+            return to_pil(img_tensors)
 
     def encode_image(self, image):
-        buffered = BytesIO()
-        image.save(buffered, format="PNG")
-        return base64.b64encode(buffered.getvalue()).decode("utf-8")
+        def encode_single(img):
+            buffered = BytesIO()
+            img.save(buffered, format="PNG")
+            return base64.b64encode(buffered.getvalue()).decode("utf-8")
+        
+        if isinstance(image, list):
+            return [encode_single(img) for img in image]
+        else:
+            return encode_single(image)
 
     def execute(
         self, prompt, additional_text, seed, model=None, custom_instruction="None",
@@ -326,8 +340,10 @@ class Polymath:
 
         b64 = None
         if image is not None:
-            pil_image = self.tensor_to_pil(image)
-            b64 = self.encode_image(pil_image)
+            pil_images = self.tensor_to_pil(image)
+            b64 = self.encode_image(pil_images)
+            if isinstance(b64, str):
+                b64 = [b64]
 
         response = self.polymath_interaction(
             selected_base_url,
@@ -481,9 +497,12 @@ class Polymath:
             # Build the contents for the generation call.
             # If a base64 image is provided, decode it into a PIL Image and pass a list [prompt_text, pil_image]
             if b64:
-                image_bytes = base64.b64decode(b64)
-                pil_image = Image.open(BytesIO(image_bytes))
-                contents = [prompt_text, pil_image]
+                images = []
+                for img_str in b64:
+                    image_bytes = base64.b64decode(img_str)
+                    pil_image = Image.open(BytesIO(image_bytes))
+                    images.append(pil_image)
+                contents = [prompt_text] + images
             else:
                 contents = prompt_text
 
@@ -497,6 +516,7 @@ class Polymath:
             # Parse the response: concatenate all text parts and load any image part.
             output_text = ""
             output_image = None
+            img_tensor = torch.from_numpy(np.array(pil_image).astype(np.float32) / 255.0).unsqueeze(0) 
             for part in response.candidates[0].content.parts:
                 if part.text is not None:
                     output_text += part.text
@@ -505,20 +525,18 @@ class Polymath:
             if output_image is not None:
                 img_array = np.array(output_image).astype(np.float32) / 255.0
                 img_tensor = torch.from_numpy(img_array)
-            if img_tensor.dim() == 3:  # [H,W,C]
-                img_tensor = img_tensor.unsqueeze(0) 
+                if img_tensor.dim() == 3:  # [H,W,C]
+                    img_tensor = img_tensor.unsqueeze(0) 
             # Update chat history with the conversation
             self.chat_history.extend([
                 {"role": "user", "content": prompt},
                 {"role": "assistant", "content": output_text}
             ])
-            return (output_text, img_tensor)
+            return (output_text, img_tensor,)
 
         # Fallback to Ollama API
         else:
-            images = None
-            if b64:
-                images = [b64]
+            images = b64 if b64 else None
             response = self.ollama_api.generate_completion(
                 ollama_chat_mode=ollama_chat_mode,
                 model=model_value,
