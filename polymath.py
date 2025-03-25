@@ -541,23 +541,21 @@ class Polymath:
             # Parse the response: concatenate all text parts and load any image part.
             output_text = ""
             output_image = None
-            img_tensor = torch.from_numpy(np.array(pil_image).astype(np.float32) / 255.0).unsqueeze(0) 
+            img_tensor = None
+
             for part in response.candidates[0].content.parts:
                 if part.text is not None:
                     output_text += part.text
                 elif part.inline_data is not None:
                     output_image = Image.open(BytesIO(part.inline_data.data))
+
             if output_image is not None:
                 img_array = np.array(output_image).astype(np.float32) / 255.0
                 img_tensor = torch.from_numpy(img_array)
-                if img_tensor.dim() == 3:  # [H,W,C]
-                    img_tensor = img_tensor.unsqueeze(0) 
-            # Update chat history with the conversation
-            self.chat_history.extend([
-                {"role": "user", "content": prompt},
-                {"role": "assistant", "content": output_text}
-            ])
-            return (output_text, img_tensor,)
+                if img_tensor.dim() == 3:
+                    img_tensor = img_tensor.unsqueeze(0)
+                    
+            return (output_text, img_tensor if img_tensor is not None else "")
 
         # Fallback to Ollama API
         else:
