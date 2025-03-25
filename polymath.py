@@ -514,14 +514,29 @@ class Polymath:
                 contents = prompt_text
 
             # Call the model with a configuration that asks for both text and image outputs.
-            response = client.models.generate_content(
-                model=model_value,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    response_modalities=["Text", "Image"],
-                    seed=seed,
-                ),
-            )
+            try:
+                response = client.models.generate_content(
+                    model=model_value,
+                    contents=contents,
+                    config=types.GenerateContentConfig(
+                        response_modalities=["Text", "Image"],
+                        seed=seed,
+                    ),
+                )
+            except Exception as e:
+                if "only supports text output" in str(e):
+                    if console_log:
+                        print("Gemini model does not support image output. Falling back to text-only.")
+                    response = client.models.generate_content(
+                        model=model_value,
+                        contents=contents,
+                        config=types.GenerateContentConfig(
+                            response_modalities=["Text"],
+                            seed=seed,
+                        ),
+                    )
+                else:
+                    raise e
 
             # Parse the response: concatenate all text parts and load any image part.
             output_text = ""
