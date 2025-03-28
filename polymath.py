@@ -554,7 +554,7 @@ class Polymath:
                 img_tensor = torch.from_numpy(img_array)
                 if img_tensor.dim() == 3:
                     img_tensor = img_tensor.unsqueeze(0)
-                    
+
             return (output_text, img_tensor if img_tensor is not None else "")
 
         # Fallback to Ollama API
