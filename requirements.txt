@@ -12,3 +12,5 @@ gallery-dl
 numpy
 Pillow
 json-repair
+
+easyocr
