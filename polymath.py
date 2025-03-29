@@ -400,6 +400,27 @@ class Polymath:
                                     {"role": "assistant", "content": output_text}])
             return (output_text,)
 
+        elif model_value.startswith('dall'):
+            from openai import OpenAI
+            from PIL import Image
+            from io import BytesIO
+            client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
+            response = client.images.generate(
+                    model=model_value,
+                    prompt=prompt,
+                    n=1,
+                    size="1024x1024",
+                    response_format="b64_json"
+                )
+            output_text = response.data[0].revised_prompt
+            decoded_data = base64.b64decode(response.data[0].b64_json)  # Decode the base64 string
+            image_data = Image.open(BytesIO(decoded_data))
+            img_array = np.array(image_data).astype(np.float32) / 255.0
+            img_tensor = torch.from_numpy(img_array)
+            if img_tensor.dim() == 3:
+                img_tensor = img_tensor.unsqueeze(0)
+            return (output_text, img_tensor if img_tensor is not None else "")
+        
         # Anthropic (e.g., Claude models) branch
         elif model_value.startswith('claude'):
             from anthropic import Anthropic
