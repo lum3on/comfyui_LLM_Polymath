@@ -478,7 +478,7 @@ class Polymath:
             return (output_text,)
 
         # Gemini branch
-        elif model_value.startswith(('gemini','gemma')):
+        elif model_value.startswith(('gemini-','gemma-')):
             from google import genai
             from google.genai import types
             from PIL import Image
