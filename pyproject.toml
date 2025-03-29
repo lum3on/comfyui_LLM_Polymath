@@ -1,6 +1,6 @@
 [project]
 name = "llm_polymath"
-description = "An advanced chat node, that integrates large language models to automate data processes and enhance prompt responses through real-time web search and image handling. It supports both OpenAI's GPT-like models and a local Ollama API. Custom node finder and smart assistant tools provide tailored workflow recommendations for efficient integration. Additionally, the node dynamically augments prompts and offers flexible output compression options."
+description = "An advanced chat node integrating LLMs, real-time web search, image handling, and image scraping. Supports APIs from OpenAI, Google, Anthropic, Grok, DeepSeek, and local Ollama. Includes custom node finder, smart assistant tools, and growing subnodes like text masking and concept eraser."
 version = "1.0.0"
 license = {file = "LICENSE"}
 dependencies = ["openai", "googlesearch-python", "requests", "bs4", "jax"]
@@ -12,4 +12,4 @@ Repository = "https://github.com/lum3on/comfyui_LLM_Polymath"
 [tool.comfy]
 PublisherId = "lum3on"
 DisplayName = "comfyui_LLM_Polymath"
-Icon = ""
+Icon = "hhttps://avatars.githubusercontent.com/u/197819028?v=4"
