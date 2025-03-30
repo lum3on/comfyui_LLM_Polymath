@@ -1,14 +1,15 @@
-from .polymath import Polymath, MediaScraper
+from .polymath import PolymathSettings, Polymath, MediaScraper
 from .helper import SaveAbs
 from .concept_eraser import ConceptEraserNode
-from .textmask import TextMaskGeneratorNode
+from .textmask import TextMaskNode
 
 NODE_CLASS_MAPPINGS = {
+    "polymath_settings": PolymathSettings,
     "polymath_chat": Polymath,
     "polymath_scraper": MediaScraper,
     "polymath_helper": SaveAbs,
     "polymath_concept_eraser": ConceptEraserNode,
-    "polymath_text_mask": TextMaskGeneratorNode
+    "polymath_text_mask": TextMaskNode
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -16,7 +17,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "polymath_scraper": "LLM Polymath Scraper for various sites",
     "polymath_helper": "Save Image to Absolute Path",
     "polymath_concept_eraser": "Erase Concept from Model",
-    "polymath_text_mask": "Generate a mask from text"
+    "polymath_text_mask": "Generate mask from text"
 }
 
 ascii_art = """

@@ -125,8 +125,11 @@ class OllamaAPI:
         self.base_url = base_url
         self.chat_history = []
 
-    def generate_completion(self, model, prompt, stream=False, keep_alive=5, ollama_chat_mode=False, images=None, seed=42):
+    def generate_completion(self, model, prompt, stream=False, ollama_chat_mode=False, images=None, seed=42, options=None):
         url = f"{self.base_url}/api/chat" if ollama_chat_mode else f"{self.base_url}/api/generate"
+
+        payload_options = options if isinstance(options, dict) else {} # Ensure options is a dict
+        payload_options['seed'] = seed
 
         if ollama_chat_mode:
             # Append the new user message to the chat history
@@ -135,20 +138,27 @@ class OllamaAPI:
                 "model": model,
                 "messages": self.chat_history,  # Include the entire chat history
                 "stream": stream,
-                "keep_alive": keep_alive,
-                "options": {"seed": seed}
+                "options": payload_options
             }
         else:
             payload = {
                 "model": model,
                 "prompt": prompt,
                 "stream": stream,
-                "keep_alive": keep_alive,
-                "options": {"seed": seed}
+                "options": payload_options
             }
 
         if images:
             payload["images"] = images
+        if options:
+            payload["temperature"] = options.get("temperature", 0.8)
+            payload["top_p"] = options.get("top_p", 0.95)
+            payload["top_k"] = options.get("top_k", 40)
+            payload["num_predict"] = options.get("max_tokens", -1)
+            payload["seed"] = options.get("seed", 42)
+            payload["repeat_penalty"] = options.get("repeat_penalty", 1.1)
+            payload["repeat_last_n"] = options.get("repeat_last_n", 64)
+            payload["keep_alive"] = options.get("ollama_keep_alive", 5)
 
         response = requests.post(url, json=payload)
         response.raise_for_status()
@@ -159,6 +169,37 @@ class OllamaAPI:
             self.chat_history.append({"role": "assistant", "content": response_json.get('message', {}).get('content', '')})
 
         return response_json
+
+class PolymathSettings:
+    @classmethod
+    def INPUT_TYPES(s):
+        return {
+            "required": {
+                "temperature": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.05}),
+                "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.05}),
+                "top_k": ("INT", {"default": 40, "min": 0, "max": 100}),
+                "max_tokens": ("INT", {"default": 1024, "min": -1, "max": 8192}), # -1 might mean 'unlimited' or 'default'
+                "presence_penalty": ("FLOAT", {"default": 0.0, "min": -2.0, "max": 2.0, "step": 0.1}),
+                "frequency_penalty": ("FLOAT", {"default": 0.0, "min": -2.0, "max": 2.0, "step": 0.1}),
+                "repeat_penalty": ("FLOAT", {"default": 1.1, "min": 0.0, "max": 2.0, "step": 0.05}),
+                "repeat_last_n": ("INT", {"default": 64, "min": 0, "max": 2048}),
+                "response_format_json": ("BOOLEAN", {"default": False}),
+                "ollama_keep_alive": ("INT", {"default": 5, "min": 1, "max": 10}),
+                "request_timeout": ("INT", {"default": 120, "min": 0, "max": 600}),
+                 "dalle_quality": (["standard", "hd"], {"default":"standard"}),
+                 "dalle_style": (["vivid", "natural"], {"default":"vivid"}),
+                 "dalle_size": (["1024x1024", "1792x1024", "1024x1792"], {"default":"1024x1024"}),
+                 "dalle_n": ("INT", {"default": 1, "min": 1, "max": 4})
+            }
+        }
+    # Output a dictionary or a specific tuple/pipe format
+    RETURN_TYPES = ("LLM_SETTINGS",) # Or use "BASIC_PIPE" if it fits
+    FUNCTION = "get_settings"
+    CATEGORY = "Polymath/Settings"
+
+    def get_settings(self, **kwargs):
+        # Package settings into a dictionary for easy use
+        return (kwargs,) # Return as a tuple containing the dict
 
 class Polymath:
     chat_history = []
@@ -183,9 +224,10 @@ class Polymath:
                         "multiline": True
                     }
                 ),
-                "seed": ("INT", {"default": 0, "min": 0, "step": 1}),
+                "seed": ("INT", {"default": 42, "min": 0, "max": 0xffffffff, "step": 1}),
             },
             "optional": {
+                "llm_settings": ("LLM_SETTINGS",),
                 "model": (models_list, {"default": default_model}),
                 "custom_instruction": (custom_instructions_list, {"default": "None"}),
                 "enable_web_search": ("BOOLEAN", {"default": False}),
@@ -232,10 +274,11 @@ class Polymath:
             return encode_single(image)
 
     def execute(
-        self, prompt, additional_text, seed, model=None, custom_instruction="None",
-        enable_web_search=False, list_sources=False, num_search_results=3, keep_context=True, ollama_chat_mode=False, compress=False, compression_level="soft", console_log=True, image=None
-    ):
+        self, prompt, additional_text, seed, llm_settings=None, model=None, custom_instruction="None", enable_web_search=False, list_sources=False, num_search_results=3, keep_context=True, ollama_chat_mode=False, compress=False, compression_level="soft", console_log=True, image=None
+        ):
         selected_model_value = models_dict.get(model)
+        settings = llm_settings if isinstance(llm_settings, dict) else {}
+
         if not selected_model_value:
             print(f"Error: Model '{model}' not found in config.json. Using default.")
             selected_model_value = list(models_dict.values())[0] if models_dict else None
@@ -361,12 +404,13 @@ class Polymath:
             ollama_chat_mode,
             custom_instruction,
             seed,
+            llm_settings=settings,
             b64=b64
         )
         return response
 
-    def polymath_interaction(self, selected_base_url, api_key_oai, api_key_anthropic, api_key_xai, api_key_deepseek, api_key_gemini,
-                            model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, seed=42, b64=None):
+    def polymath_interaction(self, selected_base_url, api_key_oai, api_key_anthropic, api_key_xai, api_key_deepseek, api_key_gemini, model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, seed=42, llm_settings={}, b64=None):
+        settings = llm_settings
         # OpenAI-based models (e.g., GPT, o1, o3)
         if model_value.startswith(('gpt', 'o1', 'o3')):
             from openai import OpenAI
@@ -389,11 +433,22 @@ class Polymath:
                  ]
                  messages.append({"role": "user", "content": user_content})
             messages.append({"role": "user", "content": prompt})
+            api_params = {
+                "model": model_value,
+                "messages": messages,
+                "stream": False,
+                "temperature": settings.get("temperature", 0.8),
+                "top_p": settings.get("top_p", 0.95),
+                "max_tokens": settings.get("max_tokens", 1024),
+                "seed": settings.get("seed", 42),
+            }
+            stop_seq = settings.get("stop_sequences", "")
+            if stop_seq:
+                api_params["stop"] = [s.strip() for s in stop_seq.split(',')]
+            request_timeout = settings.get("request_timeout", 120) or None
             completion = client.chat.completions.create(
-                model=model_value,
-                messages=messages,
-                stream=False,
-                seed=seed
+                **api_params,
+                timeout=request_timeout
             )
             output_text = completion.choices[0].message.content
             self.chat_history.extend([{"role": "user", "content": prompt},
@@ -405,21 +460,33 @@ class Polymath:
             from PIL import Image
             from io import BytesIO
             client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
-            response = client.images.generate(
-                    model=model_value,
-                    prompt=prompt,
-                    n=1,
-                    size="1024x1024",
-                    response_format="b64_json"
-                )
+            dalle_params = {
+                "model": model_value,
+                "prompt": prompt,
+                "n": settings.get("dalle_n", 1),
+                "size": settings.get("dalle_size", "1024x1024"),
+                "quality": settings.get("dalle_quality", "standard"),
+                "style": settings.get("dalle_style", "vivid"),
+                "response_format": "b64_json"
+                }
+            if console_log: print(f"\033[92mDALL-E Params:\033[0m", dalle_params)
+            request_timeout = settings.get("request_timeout", 120) or None
+            response = client.images.generate(**dalle_params, timeout=request_timeout)
             output_text = response.data[0].revised_prompt
-            decoded_data = base64.b64decode(response.data[0].b64_json)  # Decode the base64 string
-            image_data = Image.open(BytesIO(decoded_data))
-            img_array = np.array(image_data).astype(np.float32) / 255.0
-            img_tensor = torch.from_numpy(img_array)
-            if img_tensor.dim() == 3:
-                img_tensor = img_tensor.unsqueeze(0)
-            return (output_text, img_tensor if img_tensor is not None else "")
+            image_tensors = []
+            for i, img_data in enumerate(response.data):
+                try:
+                    decoded_data = base64.b64decode(img_data.b64_json)
+                    image = Image.open(BytesIO(decoded_data)).convert("RGB") # Ensure RGB
+                    # Convert PIL to Tensor
+                    img_array = np.array(image).astype(np.float32) / 255.0
+                    img_tensor = torch.from_numpy(img_array).unsqueeze(0) # Add batch dim
+                    image_tensors.append(img_tensor)
+                except Exception as e:
+                        print(f"Error processing DALL-E image data {i+1}: {e}")
+            final_image_output = torch.cat(image_tensors, dim=0) if len(image_tensors) > 1 else (image_tensors[0] if image_tensors else None)
+            output_text = output_text if output_text else "(No revised prompt provided)"
+            return (output_text, final_image_output)
         
         # Anthropic (e.g., Claude models) branch
         elif model_value.startswith('claude'):
@@ -581,14 +648,27 @@ class Polymath:
         # Fallback to Ollama API
         else:
             images = b64 if b64 else None
+            ollama_options = {
+                "temperature": settings.get("temperature", 0.8),
+                "top_p": settings.get("top_p", 0.95),
+                "top_k": settings.get("top_k", 40),
+                "num_predict": settings.get("max_tokens", -1), # Map max_tokens
+                "seed": settings.get("seed", 42),
+                "repeat_penalty": settings.get("repeat_penalty", 1.1),
+                "repeat_last_n": settings.get("repeat_last_n", 64),
+                "keep_alive": settings.get("ollama_keep_alive", 5)
+                }
+            stop_seq = settings.get("stop_sequences", "")
+            if stop_seq:
+                ollama_options["stop"] = [s.strip() for s in stop_seq.split(',')]
             response = self.ollama_api.generate_completion(
                 ollama_chat_mode=ollama_chat_mode,
                 model=model_value,
                 prompt=prompt,
                 stream=False,
-                keep_alive=5,
                 images=images,
-                seed=seed
+                seed=seed,
+                options=ollama_options
             )
             if ollama_chat_mode:
                 output_text = response.get('message', {}).get('content', '')
@@ -770,11 +850,13 @@ class MediaScraper:
 
 
 NODE_CLASS_MAPPINGS = {
+    "polymath_settings": PolymathSettings,
     "polymath_chat": Polymath,
     "polymath_scraper": MediaScraper
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
+    "polymath_settings": "LLM Polymath Chat and API Settings",
     "polymath_chat": "LLM Polymath Chat with Advanced Web and Link Search",
     "polymath_scraper": "LLM Polymath Scraper for various sites"
 }

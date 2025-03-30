@@ -2,6 +2,8 @@
   {
     "baseurl": "https://api.openai.com/v1",
     "models": {
+      "Dall-E-2": "dall-e-2",
+      "Dall-E-3": "dall-e-3",
       "GPT 3.5": "gpt-3.5-turbo",
       "GPT 4": "gpt-4-turbo",
       "GPT 4o": "gpt-4o",
