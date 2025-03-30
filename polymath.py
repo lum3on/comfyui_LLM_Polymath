@@ -154,10 +154,8 @@ class OllamaAPI:
             payload["temperature"] = options.get("temperature", 0.8)
             payload["top_p"] = options.get("top_p", 0.95)
             payload["top_k"] = options.get("top_k", 40)
-            payload["num_predict"] = options.get("max_tokens", -1)
+            payload["num_predict"] = options.get("max_output_tokens", -1)
             payload["seed"] = options.get("seed", 42)
-            payload["repeat_penalty"] = options.get("repeat_penalty", 1.1)
-            payload["repeat_last_n"] = options.get("repeat_last_n", 64)
             payload["keep_alive"] = options.get("ollama_keep_alive", 5)
 
         response = requests.post(url, json=payload)
@@ -178,11 +176,7 @@ class PolymathSettings:
                 "temperature": ("FLOAT", {"default": 0.8, "min": 0.0, "max": 2.0, "step": 0.05}),
                 "top_p": ("FLOAT", {"default": 0.95, "min": 0.0, "max": 1.0, "step": 0.05}),
                 "top_k": ("INT", {"default": 40, "min": 0, "max": 100}),
-                "max_tokens": ("INT", {"default": 1024, "min": -1, "max": 8192}), # -1 might mean 'unlimited' or 'default'
-                "presence_penalty": ("FLOAT", {"default": 0.0, "min": -2.0, "max": 2.0, "step": 0.1}),
-                "frequency_penalty": ("FLOAT", {"default": 0.0, "min": -2.0, "max": 2.0, "step": 0.1}),
-                "repeat_penalty": ("FLOAT", {"default": 1.1, "min": 0.0, "max": 2.0, "step": 0.05}),
-                "repeat_last_n": ("INT", {"default": 64, "min": 0, "max": 2048}),
+                "max_output_tokens": ("INT", {"default": 1024, "min": -1, "max": 65536}), 
                 "response_format_json": ("BOOLEAN", {"default": False}),
                 "ollama_keep_alive": ("INT", {"default": 5, "min": 1, "max": 10}),
                 "request_timeout": ("INT", {"default": 120, "min": 0, "max": 600}),
@@ -224,7 +218,7 @@ class Polymath:
                         "multiline": True
                     }
                 ),
-                "seed": ("INT", {"default": 42, "min": 0, "max": 0xffffffff, "step": 1}),
+                "seed": ("INT", {"default": 42, "min": 0, "max": 0xfffffff, "step": 1}),
             },
             "optional": {
                 "llm_settings": ("LLM_SETTINGS",),
@@ -439,8 +433,8 @@ class Polymath:
                 "stream": False,
                 "temperature": settings.get("temperature", 0.8),
                 "top_p": settings.get("top_p", 0.95),
-                "max_tokens": settings.get("max_tokens", 1024),
-                "seed": settings.get("seed", 42),
+                "max_tokens": settings.get("max_output_tokens", 1024),
+                "seed": seed,
             }
             stop_seq = settings.get("stop_sequences", "")
             if stop_seq:
@@ -575,29 +569,39 @@ class Polymath:
 
             # Initialize the Gemini client (using your Gemini API key)
             client = genai.Client(api_key=api_key_gemini)
-
+            
+            system_instruction = None
             if custom_instruction != "None":
                 try:
-                    with open(os.path.join(custom_instructions_directory, f"{custom_instruction}.txt"), 'r') as f:
-                        custom_instr = f.read()
+                    instr_path = os.path.join(custom_instructions_directory, f"{custom_instruction}.txt")
+                    with open(instr_path, 'r', encoding='utf-8') as f:
+                        system_instruction = f.read()
                 except Exception as e:
-                    print("Error reading custom instruction file:", e)
-                    custom_instr = ""
-            else:
-                custom_instr = ""
-                
-            # Combine custom instructions (if any) with the prompt.
-            prompt_text = (custom_instr + "\n" + prompt).strip() if custom_instr else prompt
+                    print(f"Warning: Error reading custom instruction file {instr_path}: {e}")
 
-            # Build the contents for the generation call.
-            # If a base64 image is provided, decode it into a PIL Image and pass a list [prompt_text, pil_image]
+            prompt_text = (system_instruction + "\n\n" + prompt).strip() if system_instruction else prompt
+                
+            # Build contents (history + current prompt + images) - (keep as is)
+            contents = []
+            # Add chat history if keep_context is True (convert to Gemini format)
+            if keep_context and Polymath.chat_history:
+                for msg in Polymath.chat_history:
+                        role = msg.get("role")
+                        content = msg.get("content")
+                        gemini_role = "user" if role == "user" else "model"
+                        # Handle content structure
+                        if isinstance(content, list): # Already structured (e.g., multimodal parts)
+                            contents.append({"role": gemini_role, "parts": content})
+                        elif isinstance(content, str): # Simple text content
+                            contents.append({"role": gemini_role, "parts": [{"text": content}]})
+
             if b64:
                 images = []
                 for img_str in b64:
                     image_bytes = base64.b64decode(img_str)
                     pil_image = Image.open(BytesIO(image_bytes))
                     images.append(pil_image)
-                contents = [prompt_text] + images
+                contents = [prompt_text, images]
             else:
                 contents = prompt_text
 
@@ -609,10 +613,14 @@ class Polymath:
                     config=types.GenerateContentConfig(
                         response_modalities=["Text", "Image"],
                         seed=seed,
+                        max_output_tokens=settings.get("max_output_tokens", 1024),
+                        temperature=settings.get("temperature", 0.8),
+                        top_p=settings.get("top_p", 0.95),
+                        top_k=settings.get("top_k", 40)
                     ),
                 )
             except Exception as e:
-                if "only supports text output" in str(e):
+                if "support" in str(e):
                     if console_log:
                         print("Gemini model does not support image output. Falling back to text-only.")
                     response = client.models.generate_content(
@@ -621,6 +629,10 @@ class Polymath:
                         config=types.GenerateContentConfig(
                             response_modalities=["Text"],
                             seed=seed,
+                            max_output_tokens=settings.get("max_output_tokens", 1024),
+                            temperature=settings.get("temperature", 0.8),
+                            top_p=settings.get("top_p", 0.95),
+                            top_k=settings.get("top_k", 40)
                         ),
                     )
                 else:
@@ -652,10 +664,8 @@ class Polymath:
                 "temperature": settings.get("temperature", 0.8),
                 "top_p": settings.get("top_p", 0.95),
                 "top_k": settings.get("top_k", 40),
-                "num_predict": settings.get("max_tokens", -1), # Map max_tokens
-                "seed": settings.get("seed", 42),
-                "repeat_penalty": settings.get("repeat_penalty", 1.1),
-                "repeat_last_n": settings.get("repeat_last_n", 64),
+                "num_predict": settings.get("max_output_tokens", -1), # Map max_tokens
+                "seed": seed,
                 "keep_alive": settings.get("ollama_keep_alive", 5)
                 }
             stop_seq = settings.get("stop_sequences", "")
