@@ -73,6 +73,28 @@ Ideal for creating large, labeled datasets for AI model training, reducing manua
 
 ![image](https://github.com/user-attachments/assets/e4b0d279-d04c-475d-82ae-500b70e415aa)
 
+### Polymath Settings Node
+
+A versatile configuration node providing essential settings for language models (LLMs) and image generation workflows. Designed for maximum flexibility and control, it allows fine-tuning of generative behavior across multiple engines including text and image generation APIs.
+
+- **Comprehensive LLM Controls:** Fine-tune generative text outputs with key parameters:  
+  - **Temperature:** Adjusts randomness in output (0.0–2.0, default 0.8).  
+  - **Top-p (Nucleus Sampling):** Controls diversity via probability mass (0.0–1.0, default 0.95).  
+  - **Top-k:** Limits to top-k most likely tokens (0–100, default 40).  
+  - **Max Output Tokens:** Sets maximum length of output (-1 to 65536, default 1024).  
+  - **Response Format JSON:** Toggle structured JSON output (default: False).  
+  - **Ollama Keep Alive:** Controls idle timeout for Ollama connections (1–10, default 5).  
+  - **Request Timeout:** Timeout for generation requests (0–600 sec, default 120).
+
+- **DALL·E Image Settings:** Customize generation style and quality:  
+  - **Quality:** Choose between `"standard"` and `"hd"` (default: standard).  
+  - **Style:** Select image tone, either `"vivid"` or `"natural"` (default: vivid).  
+  - **Size:** Specify dimensions (1024x1024, 1792x1024, 1024x1792; default: 1024x1024).  
+  - **Number of Images:** Set number of outputs per request (1–4, default: 1).
+
+
+<img width="1411" alt="image" src="https://github.com/user-attachments/assets/3e74f014-0713-4518-89d4-3a827c5bfa7c" />
+
 ---
 
 ## Usage
@@ -183,7 +205,7 @@ For further details on model customization and advanced usage, refer to the offi
 The following features are planned for the next Update.
 
 - [ ] **Node Finder Implementation in ComfyUI Manager:** Integrate a full-featured node finder in the Comfy Manager
-- [ ] **Advanced Parameter Node:** Introduce an enhanced parameter node offering additional customization and control.
+- [X] **Advanced Parameter Node:** Introduce an enhanced parameter node offering additional customization and control.
 - [ ] **Speed Improvements:** Optimize processing and API response times for a more fluid user experience.
 
 ---
