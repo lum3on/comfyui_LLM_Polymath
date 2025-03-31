@@ -120,7 +120,7 @@ def get_easyocr_reader(lang_codes=['en'], gpu=True): # Expecting a list of codes
 
 # --- The Node ---
 
-class TextMaskGeneratorNode:
+class TextMaskNode:
     """
     Generates a text mask using OCR to locate text and adaptive thresholding
     to define the mask shape within those locations.
