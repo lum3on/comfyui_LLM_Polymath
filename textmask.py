@@ -247,7 +247,7 @@ class TextMaskGeneratorNode:
 # --- ComfyUI Registration ---
 if EASYOCR_AVAILABLE:
     NODE_CLASS_MAPPINGS = {
-        "polymath_text_mask": TextMaskGeneratorNode # Mapping node class name to class
+        "polymath_text_mask": TextMaskNode # Mapping node class name to class
     }
 
     # Optional: A dictionary that allows renaming nodes in the UI
