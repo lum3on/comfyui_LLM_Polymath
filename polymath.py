@@ -447,6 +447,8 @@ class Polymath:
             output_text = completion.choices[0].message.content
             self.chat_history.extend([{"role": "user", "content": prompt},
                                     {"role": "assistant", "content": output_text}])
+            
+
             return (output_text,)
 
         elif model_value.startswith('dall'):
@@ -534,7 +536,7 @@ class Polymath:
             return (output_text,)
 
         # DeepSeek branch (compatible with OpenAI SDK)
-        elif model_value.startswith('deepseek'):
+        elif model_value in ('deepseek-chat', 'deepseek-reasoner'):
             from openai import OpenAI
             client = OpenAI(api_key=api_key_deepseek, base_url=selected_base_url)
             messages = []
