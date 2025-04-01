@@ -120,7 +120,7 @@ def get_easyocr_reader(lang_codes=['en'], gpu=True): # Expecting a list of codes
 
 # --- The Node ---
 
-class TextMaskGeneratorNode:
+class TextMaskNode:
     """
     Generates a text mask using OCR to locate text and adaptive thresholding
     to define the mask shape within those locations.
@@ -247,7 +247,7 @@ class TextMaskGeneratorNode:
 # --- ComfyUI Registration ---
 if EASYOCR_AVAILABLE:
     NODE_CLASS_MAPPINGS = {
-        "polymath_text_mask": TextMaskGeneratorNode # Mapping node class name to class
+        "polymath_text_mask": TextMaskNode # Mapping node class name to class
     }
 
     # Optional: A dictionary that allows renaming nodes in the UI
