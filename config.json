@@ -2,6 +2,7 @@
   {
     "baseurl": "https://api.openai.com/v1",
     "models": {
+      "GPT 4o Image generation": "gpt-4o-image",
       "Dall-E-2": "dall-e-2",
       "Dall-E-3": "dall-e-3",
       "GPT 3.5": "gpt-3.5-turbo",
@@ -27,7 +28,11 @@
     "baseurl": "https://api.x.ai/v1",
     "models": {
       "Grok 2 Vision": "grok-2-vision-1212",
-      "Grok 2": "grok-2-1212"    }
+      "Grok 2 Image": "grok-2-image-1212",
+      "Grok 2": "grok-2-1212",
+      "Grok 3 Mini": "grok-3-mini-beta",
+      "Grok 3": "grok-3-beta"
+    }
   },
   {
     "baseurl": "https://api.deepseek.com",
