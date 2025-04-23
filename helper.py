@@ -113,14 +113,111 @@ class SaveAbs:
 
         return ()
  
+class TextSplitter:
+    DELIMITER_NEWLINE = "\\n"  # Display as "\n" in UI
+    
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "input_string": ("STRING", {
+                    "multiline": True,
+                    "forceInput": True
+                }),
+                "delimiter": ("STRING", {
+                    "default": cls.DELIMITER_NEWLINE,
+                    "multiline": False
+                }),
+                "ignore_before_equals": ("BOOLEAN", {
+                    "default": False
+                }),
+            },
+        }
+    
+    RETURN_TYPES = ("STRING",)
+    RETURN_NAMES = ("splitted_texts",)
+    OUTPUT_IS_LIST = (True,)
+    FUNCTION = "split_string"
+    CATEGORY = "Polymath/helper"
+    
+    def split_string(s3elf, input_string, delimiter, ignore_before_equals):
+        # Handle the special case for newline delimiter
+        actual_delimiter = "\n" if delimiter == self.DELIMITER_NEWLINE else delimiter
+        
+        # Split the string and process parts
+        parts = input_string.split(actual_delimiter)
+        result = []
+        
+        # Process each part
+        for part in parts:
+            cleaned_part = part.strip()
+            if ignore_before_equals and '=' in cleaned_part:
+                cleaned_part = cleaned_part.split('=', 1)[1].strip()
+            result.append(cleaned_part)
+        
+        return (result,)
+    
+def wrapIndex(index, length):
+    """Helper function to handle index wrapping for out-of-bounds indices."""
+    if length == 0:
+        return 0, 0
+    wraps = index // length if index >= 0 else (index + 1) // length - 1
+    wrapped_index = index % length if index >= 0 else (index % length + length) % length
+    return wrapped_index, wraps
+
+class StringListPicker:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "list_input": ("STRING", {
+                    "forceInput": True,
+                }),
+                "index": ("INT", {
+                    "default": 0,
+                    "min": -999,
+                    "max": 999,
+                    "step": 1
+                }),
+            },
+        }
+    
+    RETURN_TYPES = ("STRING", "INT", "INT",)
+    RETURN_NAMES = ("list_item", "size", "wraps",)
+    
+    INPUT_IS_LIST = True
+    OUTPUT_IS_LIST = (True, False, True)
+    
+    FUNCTION = "pick"
+    CATEGORY = "Polymath/helper"
+    
+    def pick(self, list_input, index):
+        # Ensure list_input is a list of strings
+        if not list_input:
+            return ([], 0, [0] * len(index))
+        
+        length = len(list_input)
+        
+        # Process each index
+        item_list = []
+        wraps_list = []
+        for i in index:
+            index_mod, wraps = wrapIndex(i, length)
+            item_list.append(list_input[index_mod] if length > 0 else "")
+            wraps_list.append(wraps)
+        
+        return (item_list, length, wraps_list,)
  
 # A dictionary that contains all nodes you want to export with their names
-# NOTE: names should be globally unique
 NODE_CLASS_MAPPINGS = {
-    "polymath_SaveAbsolute": SaveAbs
+    "polymath_SaveAbsolute": SaveAbs,
+    "polymath_TextSplitter": TextSplitter,
+    "polymath_StringListPicker": StringListPicker
 }
  
 # A dictionary that contains the friendly/humanly readable titles for the nodes
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "polymath_SaveAbsolute": "Save Image to Absolute Path"
+    "polymath_SaveAbsolute": "Save Image to Absolute Path",
+    "polymath_TextSplitter": "Split Texts by Specified Delimiter",
+    "polymath_StringListPicker": "Picks Texts from a List by Index"
 }

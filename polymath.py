@@ -94,9 +94,11 @@ def load_models():
             response = requests.get(f"{openai_base_url}/models", headers=headers)
             response.raise_for_status()
             models = response.json().get('data', [])
+            excluded_models = ("tts", "omni", "whisper", "computer", "text")
             openai_models = {
                 f"OpenAI: {model['id']}": model['id']
                 for model in models
+                if not model['id'].startswith(excluded_models)
             }
             # Update base_urls for OpenAI models
             for model_name in openai_models.keys():
@@ -202,10 +204,13 @@ class PolymathSettings:
                 "response_format_json": ("BOOLEAN", {"default": False}),
                 "ollama_keep_alive": ("INT", {"default": 5, "min": 1, "max": 10}),
                 "request_timeout": ("INT", {"default": 120, "min": 0, "max": 600}),
-                 "dalle_quality": (["standard", "hd"], {"default":"standard"}),
-                 "dalle_style": (["vivid", "natural"], {"default":"vivid"}),
-                 "dalle_size": (["1024x1024", "1792x1024", "1024x1792"], {"default":"1024x1024"}),
-                 "dalle_n": ("INT", {"default": 1, "min": 1, "max": 4})
+                "dalle_quality": (["standard", "hd"], {"default":"standard"}),
+                "dalle_style": (["vivid", "natural"], {"default":"vivid"}),
+                "dalle_size": (["1024x1024", "1792x1024", "1024x1792"], {"default":"1024x1024"}),
+                "dalle_n": ("INT", {"default": 1, "min": 1, "max": 4}),
+                "gpt_image_quality": (["low", "medium", "high", "auto"], {"default":"auto"}),
+                "gpt_image_background": (["transparent", "opaque"], {"default":"opaque"}),
+                "gpt_image_size": (["1024x1024", "1536x1024", "1024x1536", "auto"], {"default":"auto"})
             }
         }
     # Output a dictionary or a specific tuple/pipe format
@@ -442,12 +447,12 @@ class Polymath:
             if keep_context and self.chat_history:
                 messages.extend(self.chat_history)
             if b64:
-                 image_data = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
-                 user_content = [
-                     {"type": "text", "text": prompt},
-                     image_data
-                 ]
-                 messages.append({"role": "user", "content": user_content})
+                image_data = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}
+                user_content = [
+                    {"type": "text", "text": prompt},
+                    image_data
+                ]
+                messages.append({"role": "user", "content": user_content})
             messages.append({"role": "user", "content": prompt})
             api_params = {
                 "model": model_value,
@@ -457,6 +462,7 @@ class Polymath:
                 "top_p": settings.get("top_p", 0.95),
                 "max_tokens": settings.get("max_output_tokens", 1024),
                 "seed": seed,
+                #"modalities": modalities,
             }
             stop_seq = settings.get("stop_sequences", "")
             if stop_seq:
@@ -467,8 +473,6 @@ class Polymath:
                 timeout=request_timeout
             )
             output_text = completion.choices[0].message.content
-            self.chat_history.extend([{"role": "user", "content": prompt},
-                                    {"role": "assistant", "content": output_text}])
 
             return (output_text,)
 
@@ -505,38 +509,65 @@ class Polymath:
             output_text = output_text if output_text else "(No revised prompt provided)"
             return (output_text, final_image_output)
         
-        elif model_value.startswith('chatgpt-4o-image-generation'):
+        elif model_value == 'gpt-image-1':
             from openai import OpenAI
             from PIL import Image
             from io import BytesIO
-            client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
-            dalle_params = {
+            import base64
+            import numpy as np
+            import torch
+
+            client = OpenAI(api_key=api_key_oai)
+            
+            # Base parameters for both generation and editing
+            image_params = {
                 "model": model_value,
-                "prompt": prompt,
                 "n": settings.get("dalle_n", 1),
-                "size": settings.get("dalle_size", "1024x1024"),
-                "quality": settings.get("dalle_quality", "standard"),
-                "style": settings.get("dalle_style", "vivid"),
-                "response_format": "b64_json"
-                }
-            if console_log: print(f"\033[92m4o Image Params:\033[0m", dalle_params)
-            request_timeout = settings.get("request_timeout", 120) or None
-            response = client.images.generate(**dalle_params, timeout=request_timeout)
-            output_text = response.data[0].revised_prompt
-            image_tensors = []
-            for i, img_data in enumerate(response.data):
-                try:
-                    decoded_data = base64.b64decode(img_data.b64_json)
-                    image = Image.open(BytesIO(decoded_data)).convert("RGB") # Ensure RGB
-                    # Convert PIL to Tensor
-                    img_array = np.array(image).astype(np.float32) / 255.0
-                    img_tensor = torch.from_numpy(img_array).unsqueeze(0) # Add batch dim
-                    image_tensors.append(img_tensor)
-                except Exception as e:
-                        print(f"Error processing 4o image data {i+1}: {e}")
-            final_image_output = torch.cat(image_tensors, dim=0) if len(image_tensors) > 1 else (image_tensors[0] if image_tensors else None)
-            output_text = output_text if output_text else "(No revised prompt provided)"
-            return (output_text, final_image_output) 
+                "size": settings.get("gpt_image_size", "1024x1024"),
+                "quality": settings.get("gpt_image_quality", "standard"),
+                "background": settings.get("gpt_image_background", "opaque"),  # e.g., "transparent"
+                #"output_format": settings.get("output_format", "png"),  # png, jpeg, webp
+                #"output_compression": settings.get("output_compression", None),  # 0-100 for jpeg/webp
+                #"moderation": settings.get("moderation", "auto")  # auto or low
+            }
+
+            if b64:
+                images = []
+                for img_str in b64:
+                    image_bytes = base64.b64decode(img_str)
+                    pil_image = Image.open(BytesIO(image_bytes))
+                    images.append(pil_image)
+                image_params["prompt"] = prompt
+                image_params["image"] = images
+                endpoint = client.images.edit
+            else:
+                image_params["prompt"] = prompt
+                endpoint = client.images.generate
+
+            if console_log:
+                print(f"\033[92mGPT-Image-1 Params:\033[0m",  image_params)
+
+            try:
+                response = endpoint(**image_params)
+                output_text = response.data[0].revised_prompt or "(No revised prompt provided)"
+                
+                image_tensors = []
+                for i, img_data in enumerate(response.data):
+                    try:
+                        decoded_data = base64.b64decode(img_data.b64_json)
+                        image = Image.open(BytesIO(decoded_data)).convert("RGB")
+                        img_array = np.array(image).astype(np.float32) / 255.0
+                        img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                        image_tensors.append(img_tensor)
+                    except Exception as e:
+                        print(f"Error processing image {i+1}: {e}")
+                
+                final_image_output = torch.cat(image_tensors, dim=0) if len(image_tensors) > 1 else (image_tensors[0] if image_tensors else None)
+                return (output_text, final_image_output)
+            
+            except Exception as e:
+                print(f"Error generating/editing image: {e}")
+                return (None, None)
 
         # Anthropic (e.g., Claude models) branch
         elif model_value.startswith('claude'):
