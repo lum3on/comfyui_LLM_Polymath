@@ -428,7 +428,7 @@ class Polymath:
     def polymath_interaction(self, selected_base_url, api_key_oai, api_key_anthropic, api_key_xai, api_key_deepseek, api_key_gemini, model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, seed=42, llm_settings={}, b64=None):
         settings = llm_settings
         # OpenAI-based models (e.g., GPT, o1, o3)
-        if model_value.startswith(('gpt', 'o1', 'o3')):
+        if model_value.startswith(('gpt', 'o1', 'o3', 'o3', 'chatgpt', 'davinci', 'text', 'babbage', 'omni')):
             from openai import OpenAI
             client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
             messages = []
@@ -469,7 +469,6 @@ class Polymath:
             output_text = completion.choices[0].message.content
             self.chat_history.extend([{"role": "user", "content": prompt},
                                     {"role": "assistant", "content": output_text}])
-            
 
             return (output_text,)
 
@@ -506,6 +505,39 @@ class Polymath:
             output_text = output_text if output_text else "(No revised prompt provided)"
             return (output_text, final_image_output)
         
+        elif model_value.startswith('chatgpt-4o-image-generation'):
+            from openai import OpenAI
+            from PIL import Image
+            from io import BytesIO
+            client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
+            dalle_params = {
+                "model": model_value,
+                "prompt": prompt,
+                "n": settings.get("dalle_n", 1),
+                "size": settings.get("dalle_size", "1024x1024"),
+                "quality": settings.get("dalle_quality", "standard"),
+                "style": settings.get("dalle_style", "vivid"),
+                "response_format": "b64_json"
+                }
+            if console_log: print(f"\033[92m4o Image Params:\033[0m", dalle_params)
+            request_timeout = settings.get("request_timeout", 120) or None
+            response = client.images.generate(**dalle_params, timeout=request_timeout)
+            output_text = response.data[0].revised_prompt
+            image_tensors = []
+            for i, img_data in enumerate(response.data):
+                try:
+                    decoded_data = base64.b64decode(img_data.b64_json)
+                    image = Image.open(BytesIO(decoded_data)).convert("RGB") # Ensure RGB
+                    # Convert PIL to Tensor
+                    img_array = np.array(image).astype(np.float32) / 255.0
+                    img_tensor = torch.from_numpy(img_array).unsqueeze(0) # Add batch dim
+                    image_tensors.append(img_tensor)
+                except Exception as e:
+                        print(f"Error processing 4o image data {i+1}: {e}")
+            final_image_output = torch.cat(image_tensors, dim=0) if len(image_tensors) > 1 else (image_tensors[0] if image_tensors else None)
+            output_text = output_text if output_text else "(No revised prompt provided)"
+            return (output_text, final_image_output) 
+
         # Anthropic (e.g., Claude models) branch
         elif model_value.startswith('claude'):
             from anthropic import Anthropic
