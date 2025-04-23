@@ -1,3 +1,7 @@
+## Updates
+
+The Polymath Chat Node and the LLM Settings now support the latest image generating model from OpenAI ‘gpt-image-1’. However, you need a verified OpenAI account to use it. Please read this before submitting an issue: [veryfiy organisations](https://help.openai.com/en/articles/10910291-api-organization-verification)
+
 # LLM Polymath Chat Node
 An advanced Chat Node for ComfyUI that integrates large language models to build text-driven applications and automate data processes (RAGs), enhancing prompt responses by optionally incorporating real-time web search, linked content extraction, and custom agent instructions. It supports both OpenAI’s GPT-like models and alternative models served via a local Ollama API. At its core, two essential instructions—the Comfy Node Finder, which retrieves relevant custom nodes from a the ComfyUi- Manager Custom-node-JSON database based on your queries, and the Smart Assistant, which ingests your workflow JSON to deliver tailored, actionable recommendations—drive its powerful, context-aware functionality. Additionally, a range of other agents such as Flux Prompter, several Custom Instructors, a Python debugger and scripter, and many more further extend its capabilities.
 
