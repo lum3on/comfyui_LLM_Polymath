@@ -71,7 +71,7 @@ def load_models():
     except json.JSONDecodeError:
         print(f"Error: Could not decode JSON from {config_path}")
 
-    # Fetch Ollama models (as before)
+    # Fetch Ollama models
     ollama_models = {}
     try:
         response = requests.get(ollama_url)
@@ -84,7 +84,29 @@ def load_models():
     except requests.exceptions.RequestException as e:
         print(f"Error fetching Ollama models: {e}")
 
-    merged_models = {**config_models, **ollama_models}
+    # Fetch OpenAI models
+    openai_models = {}
+    openai_api_key = os.getenv("OPENAI_API_KEY")  # Or load from config
+    openai_base_url = "https://api.openai.com/v1"
+    if openai_api_key:
+        try:
+            headers = {"Authorization": f"Bearer {openai_api_key}"}
+            response = requests.get(f"{openai_base_url}/models", headers=headers)
+            response.raise_for_status()
+            models = response.json().get('data', [])
+            openai_models = {
+                f"OpenAI: {model['id']}": model['id']
+                for model in models
+            }
+            # Update base_urls for OpenAI models
+            for model_name in openai_models.keys():
+                base_urls[model_name] = openai_base_url
+        except requests.exceptions.RequestException as e:
+            print(f"Error fetching OpenAI models: {e}")
+    else:
+        print("Warning: OpenAI API key not found. Skipping OpenAI models.")
+
+    merged_models = { **openai_models, **config_models, **ollama_models}
     models_list = list(merged_models.keys())
     default_model = models_list[0] if models_list else None
 

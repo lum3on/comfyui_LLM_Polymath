@@ -1,23 +1,5 @@
 [
   {
-    "baseurl": "https://api.openai.com/v1",
-    "models": {
-      "GPT 4o Image generation": "gpt-4o-image",
-      "Dall-E-2": "dall-e-2",
-      "Dall-E-3": "dall-e-3",
-      "GPT 3.5": "gpt-3.5-turbo",
-      "GPT 4": "gpt-4-turbo",
-      "GPT 4o": "gpt-4o",
-      "GPT 4o Mini": "gpt-4o-mini",
-      "o1": "o1",
-      "o1 Mini": "o1-mini",
-      "o3 Mini": "o3-mini",
-      "o1 Preview": "o1-preview",
-      "GPT 4o Realtime Preview": "gpt-4o-realtime-preview",
-      "GPT 4o Mini Realtime Preview": "gpt-4o-mini-realtime-preview"
-    }
-  },
-  {
     "baseurl": "https://api.anthropic.com/v1",
     "models": {
       "Claude 3.7 Sonnet": "claude-3-7-sonnet-20250219",
