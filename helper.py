@@ -140,7 +140,7 @@ class TextSplitter:
     FUNCTION = "split_string"
     CATEGORY = "Polymath/helper"
     
-    def split_string(s3elf, input_string, delimiter, ignore_before_equals):
+    def split_string(self, input_string, delimiter, ignore_before_equals):
         # Handle the special case for newline delimiter
         actual_delimiter = "\n" if delimiter == self.DELIMITER_NEWLINE else delimiter
         
