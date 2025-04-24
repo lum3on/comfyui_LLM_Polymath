@@ -209,7 +209,7 @@ class PolymathSettings:
                 "dalle_size": (["1024x1024", "1792x1024", "1024x1792"], {"default":"1024x1024"}),
                 "dalle_n": ("INT", {"default": 1, "min": 1, "max": 4}),
                 "gpt_image_quality": (["low", "medium", "high", "auto"], {"default":"auto"}),
-                "gpt_image_background": (["transparent", "opaque"], {"default":"opaque"}),
+                "gpt_image_background": (["transparent", "opaque", "auto"], {"default":"opaque"}),
                 "gpt_image_size": (["1024x1024", "1536x1024", "1024x1536", "auto"], {"default":"auto"})
             }
         }
@@ -432,8 +432,215 @@ class Polymath:
 
     def polymath_interaction(self, selected_base_url, api_key_oai, api_key_anthropic, api_key_xai, api_key_deepseek, api_key_gemini, model_value, prompt, console_log, keep_context, ollama_chat_mode, custom_instruction, seed=42, llm_settings={}, b64=None):
         settings = llm_settings
+
+        # GPT Image 1 specific handling
+        if model_value == 'gpt-image-1':
+            import requests
+            import json
+            from PIL import Image
+            from io import BytesIO
+            import base64
+            import numpy as np
+            import torch
+            
+            image_params = {
+                "model": "gpt-image-1",
+                "n": settings.get("dalle_n", 1),
+                "size": settings.get("gpt_image_size", "1024x1024"),
+                "quality": settings.get("gpt_image_quality", "auto"),
+                "background": settings.get("gpt_image_background", "opaque"),
+            }
+
+            headers = {
+                "Authorization": f"Bearer {api_key_oai}"
+            }
+
+            files = {}
+            
+            if console_log:
+                print(f"\033[92mGPT-Image-1 Params:\033[0m", {k: v for k, v in image_params.items()})
+
+            if b64:
+                url = f"{selected_base_url}/edits"
+                for i, img_str in enumerate(b64):
+                    try:
+                        image_bytes = base64.b64decode(img_str)
+                        files[f"image[{i}]"] = (f"image_{i}.png", BytesIO(image_bytes), "image/png")
+                    except Exception as e:
+                        print(f"Error decoding base64 image {i+1}: {e}")
+                        empty_tensor = torch.zeros((1, 3, 512, 512))
+                        return ("Error processing input image", empty_tensor)
+                files["prompt"] = (None, prompt)  # Add prompt to files
+                response = requests.post(url, headers=headers, files=files, data=image_params)  # Use data for image_params
+            else:
+                url = f"{selected_base_url}/generations"
+                image_params["prompt"] = prompt # Add prompt here for generations
+                response = requests.post(url, headers=headers, json=image_params)
+            
+            # 1. Check for basic HTTP errors first
+            try:
+                response.raise_for_status() # Raises an HTTPError for bad status codes (4xx or 5xx)
+            except requests.exceptions.HTTPError as http_err:
+                error_detail = f"HTTP Error: {http_err}"
+                try:
+                    # Try to get more specific error detail from response body
+                    error_detail += f"\nResponse Body: {response.text}"
+                except Exception:
+                    pass # Ignore if response text isn't available
+                print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                # Return error message as string, None for image, matching RETURN_TYPES
+                return (error_detail, None)
+            except Exception as req_err:
+                error_detail = f"Request Exception: {req_err}"
+                print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                return (error_detail, None)
+
+
+            # 2. Try to parse the JSON response
+            try:
+                response_data = response.json()
+            except json.JSONDecodeError:
+                error_detail = f"JSON Decode Error: Failed to parse API response.\nResponse Text: {response.text}"
+                print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                return (error_detail, None)
+
+            # 3. Check for "error" key in the parsed JSON (similar to FL_GPT_Image1.py)
+            if "error" in response_data:
+                error_msg = response_data.get("error", "Unknown API error structure")
+                error_detail = f"OpenAI API Error: {json.dumps(error_msg, indent=2)}"
+                print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                 # Special check for organization verification, mentioned in FL_GPT_Image1.py
+                if isinstance(error_msg, dict) and "organization verification" in error_msg.get("message", "").lower():
+                     print("\033[93mNote: This error often indicates OpenAI requires organization verification for GPT-image-1 access.\033[0m")
+                     error_detail += "\n(Hint: Check OpenAI organization verification requirements)"
+                return (error_detail, None)
+
+            # 4. Check for "data" key existence and ensure it's not empty (similar to FL_GPT_Image1.py)
+            if "data" not in response_data or not response_data.get("data"):
+                error_detail = f"API Response Error: No 'data' key found or 'data' is empty.\nFull Response: {json.dumps(response_data, indent=2)}"
+                print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                return (error_detail, None)
+            
+            image_tensors = []
+            output_text = f"Generated {len(response_data['data'])} image(s) using these parameters {image_params}" 
+
+            # loop to process images
+            for i, img_data in enumerate(response_data["data"]):
+                if "b64_json" in img_data:
+                    try:
+                        img_bytes = base64.b64decode(img_data["b64_json"])
+                        pil_image = Image.open(BytesIO(img_bytes))
+
+                        if pil_image.mode != 'RGB':
+                            pil_image = pil_image.convert('RGB')
+                        img_array = np.array(pil_image).astype(np.float32) / 255.0
+                        img_tensor = torch.from_numpy(img_array).unsqueeze(0) 
+                        image_tensors.append(img_tensor)
+                        if console_log: print(f"Successfully processed image {i+1} from base64") 
+
+                    except Exception as e:
+                        error_detail = f"Error processing base64 image {i+1}: {str(e)}"
+                        print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                        return (f"Image Processing Error: {error_detail}", None) 
+
+                elif "url" in img_data:
+                    try:
+                        url_response = requests.get(img_data["url"], timeout=30)
+                        url_response.raise_for_status() 
+
+                        pil_image = Image.open(BytesIO(url_response.content))
+                        if pil_image.mode != 'RGB':
+                            pil_image = pil_image.convert('RGB')
+
+                        img_array = np.array(pil_image).astype(np.float32) / 255.0
+                        img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                        image_tensors.append(img_tensor)
+
+                        if console_log: print(f"Successfully downloaded and processed image {i+1} from URL") 
+
+                    except Exception as e:
+                        error_detail = f"Error downloading/processing image {i+1} from URL {img_data['url']}: {str(e)}"
+                        print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                        return (f"Image URL Processing Error: {error_detail}", None) 
+
+                else:
+                    error_detail = f"No image data ('b64_json' or 'url') found in response item {i+1}"
+                    print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                    # This case is unlikely if the 'data' check passed, but good to have
+                    return (f"API Response Format Error: {error_detail}", None)
+
+            if not image_tensors:
+                 error_detail = "No images were successfully processed despite API success."
+                 print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                 return (error_detail, None)
+            elif len(image_tensors) == 1:
+                 final_image_output = image_tensors[0]
+            else:
+                 # Check tensor shapes before concatenating
+                 first_shape = image_tensors[0].shape
+                 if not all(t.shape == first_shape for t in image_tensors):
+                      error_detail = f"Cannot batch images with different shapes: {[t.shape for t in image_tensors]}"
+                      print(f"\033[91m!!! Polymath GPT-Image-1 Error !!!\033[0m\n{error_detail}")
+                      # Maybe just return the first image? Or error out? Let's error.
+                      return (error_detail, None)
+                 final_image_output = torch.cat(image_tensors, dim=0)
+
+            return (output_text, final_image_output)
+
+        elif model_value.startswith('dall'):
+            from openai import OpenAI
+            import base64  # Ensure base64 is available
+            from PIL import Image
+            from io import BytesIO
+            import numpy as np
+            import torch
+
+            client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
+            dalle_params = {
+                "model": model_value,
+                "prompt": prompt,
+                "n": settings.get("dalle_n", 1),
+                "size": settings.get("dalle_size", "1024x1024"),
+                "response_format": "b64_json"
+            }
+
+            if model_value in ("dall-e-3"):
+                dalle_params["quality"] = settings.get("dalle_quality", "standard")
+                dalle_params["style"] = settings.get("dalle_style", "vivid")
+            elif console_log:
+                print("\033[93mWarning:\033[0m `quality` and `style` parameters are only supported for dall-e-3. Ignoring for older DALL-E models.")
+
+            if console_log:
+                print(f"\033[92mDALL-E Params:\033[0m", dalle_params)
+
+            request_timeout = settings.get("request_timeout", 120) or None
+            try:
+                response = client.images.generate(**dalle_params, timeout=request_timeout)
+            except Exception as e:
+                error_message = f"DALL-E API Error: {e}"
+                print(f"\033[91m!!! Polymath DALL-E Error !!!\033[0m\n{error_message}")
+                return (error_message, None)
+
+            image_tensors = []
+            output_text = response.data[0].revised_prompt if response.data[0].revised_prompt else "(No revised prompt provided)"
+
+            for i, img_data in enumerate(response.data):
+                try:
+                    decoded_data = base64.b64decode(img_data.b64_json)
+                    image = Image.open(BytesIO(decoded_data)).convert("RGB")
+                    img_array = np.array(image).astype(np.float32) / 255.0
+                    img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                    image_tensors.append(img_tensor)
+                except Exception as e:
+                    error_message = f"Error processing DALL-E image data {i+1}: {e}"
+                    print(f"\033[91m!!! Polymath DALL-E Error !!!\033[0m\n{error_message}")
+                    return (error_message, None) # Handle image decode errors
+
+            final_image_output = torch.cat(image_tensors, dim=0) if image_tensors else None # Handle no images
+            return (output_text, final_image_output)
+
         # OpenAI-based models (e.g., GPT, o1, o3)
-        if model_value.startswith(('gpt', 'o1', 'o3', 'o3', 'chatgpt', 'davinci', 'text', 'babbage', 'omni')):
+        elif model_value.startswith(('gpt', 'o1', 'o3', 'o3', 'chatgpt', 'davinci', 'text', 'babbage', 'omni')):
             from openai import OpenAI
             client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
             messages = []
@@ -475,99 +682,6 @@ class Polymath:
             output_text = completion.choices[0].message.content
 
             return (output_text,)
-
-        elif model_value.startswith('dall'):
-            from openai import OpenAI
-            from PIL import Image
-            from io import BytesIO
-            client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
-            dalle_params = {
-                "model": model_value,
-                "prompt": prompt,
-                "n": settings.get("dalle_n", 1),
-                "size": settings.get("dalle_size", "1024x1024"),
-                "quality": settings.get("dalle_quality", "standard"),
-                "style": settings.get("dalle_style", "vivid"),
-                "response_format": "b64_json"
-                }
-            if console_log: print(f"\033[92mDALL-E Params:\033[0m", dalle_params)
-            request_timeout = settings.get("request_timeout", 120) or None
-            response = client.images.generate(**dalle_params, timeout=request_timeout)
-            output_text = response.data[0].revised_prompt
-            image_tensors = []
-            for i, img_data in enumerate(response.data):
-                try:
-                    decoded_data = base64.b64decode(img_data.b64_json)
-                    image = Image.open(BytesIO(decoded_data)).convert("RGB") # Ensure RGB
-                    # Convert PIL to Tensor
-                    img_array = np.array(image).astype(np.float32) / 255.0
-                    img_tensor = torch.from_numpy(img_array).unsqueeze(0) # Add batch dim
-                    image_tensors.append(img_tensor)
-                except Exception as e:
-                        print(f"Error processing DALL-E image data {i+1}: {e}")
-            final_image_output = torch.cat(image_tensors, dim=0) if len(image_tensors) > 1 else (image_tensors[0] if image_tensors else None)
-            output_text = output_text if output_text else "(No revised prompt provided)"
-            return (output_text, final_image_output)
-        
-        elif model_value == 'gpt-image-1':
-            from openai import OpenAI
-            from PIL import Image
-            from io import BytesIO
-            import base64
-            import numpy as np
-            import torch
-
-            client = OpenAI(api_key=api_key_oai)
-            
-            # Base parameters for both generation and editing
-            image_params = {
-                "model": model_value,
-                "n": settings.get("dalle_n", 1),
-                "size": settings.get("gpt_image_size", "1024x1024"),
-                "quality": settings.get("gpt_image_quality", "standard"),
-                "background": settings.get("gpt_image_background", "opaque"),  # e.g., "transparent"
-                #"output_format": settings.get("output_format", "png"),  # png, jpeg, webp
-                #"output_compression": settings.get("output_compression", None),  # 0-100 for jpeg/webp
-                #"moderation": settings.get("moderation", "auto")  # auto or low
-            }
-
-            if b64:
-                images = []
-                for img_str in b64:
-                    image_bytes = base64.b64decode(img_str)
-                    pil_image = Image.open(BytesIO(image_bytes))
-                    images.append(pil_image)
-                image_params["prompt"] = prompt
-                image_params["image"] = images
-                endpoint = client.images.edit
-            else:
-                image_params["prompt"] = prompt
-                endpoint = client.images.generate
-
-            if console_log:
-                print(f"\033[92mGPT-Image-1 Params:\033[0m",  image_params)
-
-            try:
-                response = endpoint(**image_params)
-                output_text = response.data[0].revised_prompt or "(No revised prompt provided)"
-                
-                image_tensors = []
-                for i, img_data in enumerate(response.data):
-                    try:
-                        decoded_data = base64.b64decode(img_data.b64_json)
-                        image = Image.open(BytesIO(decoded_data)).convert("RGB")
-                        img_array = np.array(image).astype(np.float32) / 255.0
-                        img_tensor = torch.from_numpy(img_array).unsqueeze(0)
-                        image_tensors.append(img_tensor)
-                    except Exception as e:
-                        print(f"Error processing image {i+1}: {e}")
-                
-                final_image_output = torch.cat(image_tensors, dim=0) if len(image_tensors) > 1 else (image_tensors[0] if image_tensors else None)
-                return (output_text, final_image_output)
-            
-            except Exception as e:
-                print(f"Error generating/editing image: {e}")
-                return (None, None)
 
         # Anthropic (e.g., Claude models) branch
         elif model_value.startswith('claude'):

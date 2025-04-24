@@ -1,5 +1,11 @@
 [
   {
+    "baseurl": "https://api.openai.com/v1/images",
+    "models": {
+      "GPT Image 1": "gpt-image-1"
+    }
+  },
+  {
     "baseurl": "https://api.anthropic.com/v1",
     "models": {
       "Claude 3.7 Sonnet": "claude-3-7-sonnet-20250219",
