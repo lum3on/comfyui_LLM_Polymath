@@ -10,8 +10,8 @@ NODE_CLASS_MAPPINGS = {
     "polymath_helper": SaveAbs,
     "polymath_TextSplitter": TextSplitter,
     "polymath_StringListPicker": StringListPicker,
-    #"polymath_concept_eraser": ConceptEraserNode,
     "polymath_text_mask": TextMaskNode
+    #"polymath_concept_eraser": ConceptEraserNode,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -20,8 +20,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "polymath_helper": "Save Image to Absolute Path",
     "polymath_TextSplitter": "Split Texts by Specified Delimiter",
     "polymath_StringListPicker": "Picks Texts from a List by Index",
-    "polymath_concept_eraser": "Erase Concept from Model"
-    #"polymath_text_mask": "Generate mask from text"
+    "polymath_text_mask": "Generate mask from text"
+    #"polymath_concept_eraser": "Erase Concept from Model"
 }
 
 ascii_art = """
