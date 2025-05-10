@@ -207,7 +207,7 @@ class PolymathSettings:
                 "dalle_quality": (["standard", "hd"], {"default":"standard"}),
                 "dalle_style": (["vivid", "natural"], {"default":"vivid"}),
                 "dalle_size": (["1024x1024", "1792x1024", "1024x1792"], {"default":"1024x1024"}),
-                "dalle_n": ("INT", {"default": 1, "min": 1, "max": 4}),
+                "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
                 "gpt_image_quality": (["low", "medium", "high", "auto"], {"default":"auto"}),
                 "gpt_image_background": (["transparent", "opaque", "auto"], {"default":"opaque"}),
                 "gpt_image_size": (["1024x1024", "1536x1024", "1024x1536", "auto"], {"default":"auto"})
@@ -445,7 +445,7 @@ class Polymath:
             
             image_params = {
                 "model": "gpt-image-1",
-                "n": settings.get("dalle_n", 1),
+                "n": settings.get("batch_size", 1),
                 "size": settings.get("gpt_image_size", "1024x1024"),
                 "quality": settings.get("gpt_image_quality", "auto"),
                 "background": settings.get("gpt_image_background", "opaque"),
@@ -599,7 +599,7 @@ class Polymath:
             dalle_params = {
                 "model": model_value,
                 "prompt": prompt,
-                "n": settings.get("dalle_n", 1),
+                "n": settings.get("batch_size", 1),
                 "size": settings.get("dalle_size", "1024x1024"),
                 "response_format": "b64_json"
             }
@@ -680,7 +680,8 @@ class Polymath:
                 timeout=request_timeout
             )
             output_text = completion.choices[0].message.content
-
+            self.chat_history.extend([{"role": "user", "content": prompt},
+                                    {"role": "assistant", "content": output_text}])
             return (output_text,)
 
         # Anthropic (e.g., Claude models) branch
