@@ -145,7 +145,7 @@ The node exposes a range of configurable inputs:
    GEMINI_API_KEY="your_gemini_api_key_here"
    ```
 
-# Set the API-Keys on Windows Portable 
+### Set the API-Keys on Windows Portable 
   Open your .bat file and add the lines with your respective api-keys like this:
 
   ```bash
@@ -155,7 +155,7 @@ The node exposes a range of configurable inputs:
    set DEEPSEEK_API_KEY="your_deepseek_api_key_here"
    set GEMINI_API_KEY="your_gemini_api_key_here"
    ```
-   
+
 ---
 
 ## Ollama Installation & Model Download
