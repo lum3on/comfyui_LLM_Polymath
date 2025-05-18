@@ -136,7 +136,7 @@ The node exposes a range of configurable inputs:
    ```
 
 3. **Set the key in your Environment Variables:**
-   create a .env file in your comfy root folder and set your api-keys in the file like this:
+   Create a .env file in your comfy root folder and set your api-keys in the file like this:
    ```bash
    OPENAI_API_KEY="your_api_key_here"
    ANTHROPIC_API_KEY="your_anthropic_api_key_here"
@@ -145,6 +145,17 @@ The node exposes a range of configurable inputs:
    GEMINI_API_KEY="your_gemini_api_key_here"
    ```
 
+# Set the API-Keys on Windows Portable 
+  Open your .bat file and add the lines with your respective api-keys like this:
+
+  ```bash
+   set OPENAI_API_KEY="your_api_key_here"
+   set ANTHROPIC_API_KEY="your_anthropic_api_key_here"
+   set XAI_API_KEY="your_xai_api_key_here"
+   set DEEPSEEK_API_KEY="your_deepseek_api_key_here"
+   set GEMINI_API_KEY="your_gemini_api_key_here"
+   ```
+   
 ---
 
 ## Ollama Installation & Model Download
