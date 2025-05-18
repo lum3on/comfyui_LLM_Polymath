@@ -94,7 +94,7 @@ def load_models():
             response = requests.get(f"{openai_base_url}/models", headers=headers)
             response.raise_for_status()
             models = response.json().get('data', [])
-            excluded_models = ("tts", "omni", "whisper", "computer", "text")
+            excluded_models = ("tts", "omni", "whisper", "computer", "text", "davinci", "babbage", "codex")
             openai_models = {
                 f"OpenAI: {model['id']}": model['id']
                 for model in models
@@ -410,6 +410,7 @@ class Polymath:
             b64 = self.encode_image(pil_images)
             if isinstance(b64, str):
                 b64 = [b64]
+        
 
         response = self.polymath_interaction(
             selected_base_url,
@@ -640,7 +641,7 @@ class Polymath:
             return (output_text, final_image_output)
 
         # OpenAI-based models (e.g., GPT, o1, o3)
-        elif model_value.startswith(('gpt', 'o1', 'o3', 'o3', 'chatgpt', 'davinci', 'text', 'babbage', 'omni')):
+        elif model_value.startswith(('gpt', 'o1', 'o3', 'o3', 'chatgpt')):
             from openai import OpenAI
             client = OpenAI(api_key=api_key_oai, base_url=selected_base_url)
             messages = []
