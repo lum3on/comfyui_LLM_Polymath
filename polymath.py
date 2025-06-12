@@ -763,7 +763,7 @@ class Polymath:
             return (output_text,)
 
         # Gemini branch
-        elif model_value.startswith(('gemini-','gemma-')):
+        elif model_value.startswith(('gemini-','imagen-')):
             from google import genai
             from google.genai import types
             from PIL import Image
@@ -823,7 +823,7 @@ class Polymath:
                     ),
                 )
             except Exception as e:
-                if "support" in str(e):
+                if "support" in str(e) or "Image generation is not available" in str(e):
                     if console_log:
                         print("Gemini model does not support image output. Falling back to text-only.")
                     response = client.models.generate_content(
@@ -846,11 +846,19 @@ class Polymath:
             output_image = None
             img_tensor = None
 
-            for part in response.candidates[0].content.parts:
-                if part.text is not None:
-                    output_text += part.text
-                elif part.inline_data is not None:
-                    output_image = Image.open(BytesIO(part.inline_data.data))
+            if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
+                for part in response.candidates[0].content.parts:
+                    if part.text is not None:
+                        output_text += part.text
+                    elif part.inline_data is not None:
+                        output_image = Image.open(BytesIO(part.inline_data.data))
+            else:
+                # Handle cases where there's no content, maybe due to safety filters
+                output_text = "Error: No content generated. This might be due to safety filters or an empty response from the model."
+                if hasattr(response, 'prompt_feedback') and response.prompt_feedback:
+                    output_text += f"\nPrompt Feedback: {response.prompt_feedback}"
+                if console_log:
+                    print(f"\033[91m!!! Polymath Gemini Error !!!\033[0m\n{output_text}")
 
             if output_image is not None:
                 img_array = np.array(output_image).astype(np.float32) / 255.0

@@ -31,10 +31,11 @@
   {
     "baseurl": "https://generativelanguage.googleapis.com/v1beta",
     "models": {
-      "Gemini 2.5 Pro Experimental": "gemini-2.5-pro-exp-03-25",
-      "Gemini 2.0 Flash Image Generation": "gemini-2.0-flash-exp-image-generation",
+      "Gemini 2.5 Pro Preview": "gemini-2.5-pro-preview-05-06",
+      "Gemini 2.0 Flash Image Generation": "gemini-2.0-flash-preview-image-generation",
+      "Gemini 2.0 Flash": "gemini-2.0-flash",
       "Gemini 1.5 Flash": "gemini-1.5-flash",
-      "Gemma 3 27B": "gemma-3-27b-it"
+      "Imagen 3": "imagen-3.0-generate-002"
     }
   }
 ]
