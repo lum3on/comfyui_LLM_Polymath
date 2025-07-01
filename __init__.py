@@ -2,7 +2,7 @@ from .polymath import PolymathSettings, Polymath, MediaScraper
 from .helper import SaveAbs, TextSplitter, StringListPicker
 #from .concept_eraser import ConceptEraserNode
 from .textmask import TextMaskNode
-from .template import TemplateNode
+#from .template import TemplateNode
 
 NODE_CLASS_MAPPINGS = {
     "polymath_settings": PolymathSettings,
@@ -12,7 +12,7 @@ NODE_CLASS_MAPPINGS = {
     "polymath_TextSplitter": TextSplitter,
     "polymath_StringListPicker": StringListPicker,
     "polymath_text_mask": TextMaskNode,
-    "polymath_template": TemplateNode
+    #"polymath_template": TemplateNode
     #"polymath_concept_eraser": ConceptEraserNode,
 }
 
