@@ -1,4 +1,5 @@
-from .polymath import PolymathSettings, Polymath, MediaScraper
+from .polymath import PolymathSettings, Polymath
+from .media_scraper import MediaScraper
 from .helper import SaveAbs, TextSplitter, StringListPicker
 #from .concept_eraser import ConceptEraserNode
 from .textmask import TextMaskNode
@@ -18,7 +19,7 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "polymath_chat": "LLM Polymath Chat with Advanced Web and Link Search",
-    "polymath_scraper": "LLM Polymath Scraper for various sites",
+    "polymath_scraper": "Media Scraper",
     "polymath_helper": "Save Image to Absolute Path",
     "polymath_TextSplitter": "Split Texts by Specified Delimiter",
     "polymath_StringListPicker": "Picks Texts from a List by Index",
