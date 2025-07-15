@@ -3,6 +3,7 @@ from .media_scraper import MediaScraper
 from .helper import SaveAbs, TextSplitter, StringListPicker
 #from .concept_eraser import ConceptEraserNode
 from .textmask import TextMaskNode
+from .flux_context_preset import FluxContextPreset
 #from .template import TemplateNode
 
 NODE_CLASS_MAPPINGS = {
@@ -13,6 +14,7 @@ NODE_CLASS_MAPPINGS = {
     "polymath_TextSplitter": TextSplitter,
     "polymath_StringListPicker": StringListPicker,
     "polymath_text_mask": TextMaskNode,
+    "flux_context_preset": FluxContextPreset,
     #"polymath_template": TemplateNode
     #"polymath_concept_eraser": ConceptEraserNode,
 }
@@ -24,6 +26,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "polymath_TextSplitter": "Split Texts by Specified Delimiter",
     "polymath_StringListPicker": "Picks Texts from a List by Index",
     "polymath_text_mask": "Generate mask from text",
+    "flux_context_preset": "Flux Context Preset",
     "polymath_template": "Simple Node Template"
     #"polymath_concept_eraser": "Erase Concept from Model"
 }
