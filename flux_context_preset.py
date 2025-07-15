@@ -185,4 +185,11 @@ Each line *is* a complete, concise instruction ready for the image editing AI. D
         
         return (selected_prompt,)
 
+# Node registration
+NODE_CLASS_MAPPINGS = {
+    "flux_context_preset": FluxContextPreset
+}
 
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "flux_context_preset": "Flux Context Preset"
+}
