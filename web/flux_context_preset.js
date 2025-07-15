@@ -287,47 +287,86 @@ app.registerExtension({
             node.color = "#9968f3";
             node.bgcolor = "#2a2a2a";
 
-            // Add button to reveal presets
-            const button = document.createElement('button');
-            button.textContent = '📋 Show All Presets';
-            button.style.cssText = `
-                background: linear-gradient(45deg, #9968f3, #7c4dff);
-                border: none;
-                color: white;
-                padding: 8px 12px;
-                margin: 5px;
-                border-radius: 4px;
-                cursor: pointer;
-                font-size: 12px;
-                font-weight: bold;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                transition: all 0.2s ease;
-            `;
-            
-            button.onmouseover = () => {
-                button.style.transform = 'translateY(-1px)';
-                button.style.boxShadow = '0 4px 8px rgba(0,0,0,0.4)';
-            };
-            
-            button.onmouseout = () => {
-                button.style.transform = 'translateY(0)';
-                button.style.boxShadow = '0 2px 4px rgba(0,0,0,0.3)';
+            // Create clickable icon in the node title area
+            const createRevealIcon = () => {
+                const icon = document.createElement('div');
+                icon.innerHTML = '📋';
+                icon.title = 'Show All Presets';
+                icon.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    width: 24px;
+                    height: 24px;
+                    background: linear-gradient(45deg, #9968f3, #7c4dff);
+                    border: 2px solid #fff;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 12px;
+                    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                    transition: all 0.2s ease;
+                    z-index: 1000;
+                    user-select: none;
+                `;
+
+                icon.onmouseover = () => {
+                    icon.style.transform = 'scale(1.1)';
+                    icon.style.boxShadow = '0 4px 12px rgba(153, 104, 243, 0.6)';
+                };
+
+                icon.onmouseout = () => {
+                    icon.style.transform = 'scale(1)';
+                    icon.style.boxShadow = '0 2px 6px rgba(0,0,0,0.4)';
+                };
+
+                icon.onclick = (e) => {
+                    e.stopPropagation();
+                    showPresetModal();
+                };
+
+                return icon;
             };
 
-            button.onclick = showPresetModal;
+            // Add icon to node after it's rendered
+            setTimeout(() => {
+                const nodeElement = node.canvas?.canvas?.parentElement?.querySelector(`[data-id="${node.id}"]`) ||
+                                  document.querySelector(`[data-id="${node.id}"]`);
 
-            // Add button to the node
-            if (node.addDOMWidget) {
-                node.addDOMWidget("button", "reveal_presets", button);
-            } else {
-                // Fallback: append to node element
-                setTimeout(() => {
-                    const nodeElement = document.querySelector(`[data-id="${node.id}"]`);
-                    if (nodeElement) {
-                        nodeElement.appendChild(button);
+                if (nodeElement) {
+                    // Make sure the node has relative positioning for absolute positioning of icon
+                    nodeElement.style.position = 'relative';
+
+                    // Remove any existing icon
+                    const existingIcon = nodeElement.querySelector('.preset-reveal-icon');
+                    if (existingIcon) {
+                        existingIcon.remove();
                     }
-                }, 100);
-            }
+
+                    // Add the new icon
+                    const icon = createRevealIcon();
+                    icon.classList.add('preset-reveal-icon');
+                    nodeElement.appendChild(icon);
+                } else {
+                    // Fallback: try to find the node element in the DOM
+                    const observer = new MutationObserver((mutations) => {
+                        const nodeEl = document.querySelector(`[data-id="${node.id}"]`);
+                        if (nodeEl) {
+                            nodeEl.style.position = 'relative';
+                            const icon = createRevealIcon();
+                            icon.classList.add('preset-reveal-icon');
+                            nodeEl.appendChild(icon);
+                            observer.disconnect();
+                        }
+                    });
+                    observer.observe(document.body, { childList: true, subtree: true });
+
+                    // Stop observing after 5 seconds to prevent memory leaks
+                    setTimeout(() => observer.disconnect(), 5000);
+                }
+            }, 200);
         }
     }
 });
