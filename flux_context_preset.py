@@ -2,7 +2,7 @@ class FluxContextPreset:
     """
     Flux Context Preset Node - Provides predefined prompts for image transformation tasks
     """
-    
+
     # All presets embedded in the node
     PRESETS = {
         "Teleport": """You are a creative prompt engineer. Your mission is to analyze the provided image and generate exactly 1 distinct image transformation *instructions*.
@@ -161,7 +161,7 @@ Each line *is* a complete, concise instruction ready for the image editing AI. D
             "required": {
                 "preset": (list(cls.PRESETS.keys()), {"default": "Teleport"}),
                 "additional_text": ("STRING", {
-                    "multiline": True, 
+                    "multiline": True,
                     "default": "",
                     "placeholder": "Add any additional instructions here..."
                 }),
@@ -177,12 +177,19 @@ Each line *is* a complete, concise instruction ready for the image editing AI. D
         Generate the final prompt by combining the selected preset with additional text
         """
         selected_prompt = self.PRESETS[preset]
-        
+
         if additional_text.strip():
             # Combine preset with additional instructions
             combined_prompt = f"{selected_prompt}\n\nAdditional instructions: {additional_text.strip()}"
             return (combined_prompt,)
-        
+
         return (selected_prompt,)
 
+# Node registration
+NODE_CLASS_MAPPINGS = {
+    "flux_context_preset": FluxContextPreset
+}
 
+NODE_DISPLAY_NAME_MAPPINGS = {
+    "flux_context_preset": "Flux Context Preset"
+}
