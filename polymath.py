@@ -7,6 +7,7 @@ import base64
 import numpy as np
 from io import BytesIO
 from PIL import Image
+import torch
 
 # For the Websearch
 from googlesearch import search
@@ -764,6 +765,9 @@ class Polymath:
             from PIL import Image
             from io import BytesIO
             import os
+            import base64
+            import numpy as np
+            import torch
 
             # Initialize the Gemini client (using your Gemini API key)
             client = genai.Client(api_key=api_key_gemini)
