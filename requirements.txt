@@ -1,5 +1,5 @@
 google
-google-genai
+google-genai>=0.5.0
 openai
 anthropic
 ollama>=0.4.7

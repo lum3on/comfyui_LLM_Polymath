@@ -206,7 +206,9 @@ class PolymathSettings:
                 "batch_size": ("INT", {"default": 1, "min": 1, "max": 4}),
                 "gpt_image_quality": (["low", "medium", "high", "auto"], {"default":"auto"}),
                 "gpt_image_background": (["transparent", "opaque", "auto"], {"default":"opaque"}),
-                "gpt_image_size": (["1024x1024", "1536x1024", "1024x1536", "auto"], {"default":"auto"})
+                "gpt_image_size": (["1024x1024", "1536x1024", "1024x1536", "auto"], {"default":"auto"}),
+                "gemini_aspect_ratio": (["1:1", "16:9", "9:16", "4:3", "3:4", "2:3", "3:2", "4:5", "5:4", "21:9"], {"default": "1:1"}),
+                "gemini_image_size": (["1K", "2K", "4K"], {"default": "1K"})
             }
         }
     # Output a dictionary or a specific tuple/pipe format
@@ -431,7 +433,7 @@ class Polymath:
         settings = llm_settings
 
         # GPT Image 1 specific handling
-        if model_value == 'gpt-image-1':
+        if model_value.startswith('gpt-image'):
             import requests
             import json
             from PIL import Image
@@ -441,7 +443,7 @@ class Polymath:
             import torch
             
             image_params = {
-                "model": "gpt-image-1",
+                "model": model_value,
                 "n": settings.get("batch_size", 1),
                 "size": settings.get("gpt_image_size", "1024x1024"),
                 "quality": settings.get("gpt_image_quality", "auto"),
@@ -759,7 +761,7 @@ class Polymath:
             return (output_text,)
 
         # Gemini branch
-        elif model_value.startswith(('gemini-','imagen-')):
+        elif model_value.startswith(('gemini-', 'imagen-', 'nano-', 'banana-')):
             from google import genai
             from google.genai import types
             from PIL import Image
@@ -786,8 +788,8 @@ class Polymath:
             # Build contents (history + current prompt + images) - (keep as is)
             contents = []
             # Add chat history if keep_context is True (convert to Gemini format)
-            if keep_context and Polymath.chat_history:
-                for msg in Polymath.chat_history:
+            if keep_context and self.chat_history: # Changed Polymath.chat_history to self.chat_history
+                for msg in self.chat_history:
                         role = msg.get("role")
                         content = msg.get("content")
                         gemini_role = "user" if role == "user" else "model"
@@ -798,74 +800,187 @@ class Polymath:
                             contents.append({"role": gemini_role, "parts": [{"text": content}]})
 
             if b64:
-                images = []
-                for img_str in b64:
-                    image_bytes = base64.b64decode(img_str)
-                    pil_image = Image.open(BytesIO(image_bytes))
-                    images.append(pil_image)
-                contents = [prompt_text, images]
+                 parts = [{"text": prompt_text}]
+                 for img_str in b64:
+                      parts.append({"inline_data": {"mime_type": "image/png", "data": img_str}})
+                 contents.append({"role": "user", "parts": parts})
             else:
-                contents = prompt_text
+                 contents.append({"role": "user", "parts": [{"text": prompt_text}]})
 
-            # Call the model with a configuration that asks for both text and image outputs.
+            # Retrieve Gemini specific settings
+            aspect_ratio = settings.get("gemini_aspect_ratio", "1:1")
+            image_size = settings.get("gemini_image_size", "1K")
+
+            is_image_model = any(keyword in model_value for keyword in ['image', 'imagen', 'banana'])
+
+            config_args = {
+                "temperature": settings.get("temperature", 0.8),
+                "top_p": settings.get("top_p", 0.95),
+                "top_k": settings.get("top_k", 40),
+                "max_output_tokens": settings.get("max_output_tokens", 8192),
+                "seed": seed, # Added seed to config_args
+            }
+
+            if is_image_model:
+                config_args["response_modalities"] = ["IMAGE"]
+                
+                allowed_fields = set()
+                if hasattr(types.ImageConfig, "model_fields"):
+                     allowed_fields = set(types.ImageConfig.model_fields.keys())
+                
+                # NOTE: If 'image_size' is ignored, please upgrade google-genai: pip install --upgrade google-genai
+
+                img_conf_args = {}
+                
+                if "aspect_ratio" in allowed_fields:
+                     img_conf_args["aspect_ratio"] = aspect_ratio
+                if "image_size" in allowed_fields:
+                     # Only send image_size for Gemini 3 / Nano Banana models
+                     # Gemini 2.5 and others reject this parameter
+                     if "3" in model_value or "banana" in model_value or "nano" in model_value:
+                         img_conf_args["image_size"] = image_size
+                elif "sample_image_size" in allowed_fields: 
+                     if "3" in model_value or "banana" in model_value or "nano" in model_value:
+                         img_conf_args["sample_image_size"] = image_size
+                else:
+                     # Warn if user tries to set non-default size on unsupported setup
+                     if console_log and image_size != "1K" and ("3" in model_value or "banana" in model_value):
+                         print(f"Warning: 'image_size' not supported in this google-genai version. Ignoring setting '{image_size}'.")
+
+                config_args["image_config"] = types.ImageConfig(**img_conf_args)
+            
+            generate_config = types.GenerateContentConfig(**config_args)
+
             try:
+                if console_log:
+                    print(f"Gemini Request: Model={model_value}, IsImage={is_image_model}, Config={config_args}")
+
                 response = client.models.generate_content(
                     model=model_value,
                     contents=contents,
-                    config=types.GenerateContentConfig(
-                        response_modalities=["Text", "Image"],
-                        seed=seed,
-                        max_output_tokens=settings.get("max_output_tokens", 1024),
-                        temperature=settings.get("temperature", 0.8),
-                        top_p=settings.get("top_p", 0.95),
-                        top_k=settings.get("top_k", 40)
-                    ),
+                    config=generate_config
                 )
+                
+                output_text = ""
+                image_tensors = []
+                
+                # Parse response
+                if response.parts:
+                    for part in response.parts:
+                        if part.text:
+                            output_text += part.text + "\n"
+                        
+                        img_bytes = None
+                        if hasattr(part, 'as_image') and part.as_image():
+                             pil_img = part.as_image()
+                             if not isinstance(pil_img, Image.Image):
+                                 # Try to convert if it's not already an image
+                                 try:
+                                     pil_img = Image.open(BytesIO(pil_img))
+                                 except:
+                                     pass
+
+                             if isinstance(pil_img, Image.Image):
+                                 img_array = np.array(pil_img).astype(np.float32) / 255.0
+                                 img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                                 image_tensors.append(img_tensor)
+
+                        elif hasattr(part, 'inline_data') and part.inline_data:
+                            img_data = part.inline_data.data
+                            try:
+                                # img_data is likely already bytes
+                                img_bytes = img_data
+                                if isinstance(img_data, str):
+                                    try: img_bytes = base64.b64decode(img_data)
+                                    except: img_bytes = img_data.encode('utf-8')
+
+                                pil_image = Image.open(BytesIO(img_bytes)).convert("RGB")
+                                img_array = np.array(pil_image).astype(np.float32) / 255.0
+                                img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                                image_tensors.append(img_tensor)
+                            except Exception as e:
+                                print(f"Error processing inline image data: {e}")
+
+                # Update chat history if text was generated
+                if output_text:
+                     self.chat_history.extend([{"role": "user", "content": prompt},
+                                             {"role": "assistant", "content": output_text}])
+                
+                # Check for candidates if parts were empty (fallback)
+                if not output_text and not image_tensors and hasattr(response, 'candidates') and response.candidates:
+                     for cand in response.candidates:
+                          if cand.content and cand.content.parts:
+                               for part in cand.content.parts:
+                                    if part.text: output_text += part.text + "\n"
+                                    
+                                    found_image = False
+                                    
+                                    # Try inline_data first as it is seen in the debug dump
+                                    if hasattr(part, 'inline_data') and part.inline_data:
+                                         try:
+                                             img_data = part.inline_data.data
+                                             img_bytes = img_data
+                                             if isinstance(img_data, str):
+                                                 try: img_bytes = base64.b64decode(img_data)
+                                                 except: img_bytes = img_data.encode('utf-8')
+
+                                             pil_image = Image.open(BytesIO(img_bytes)).convert("RGB")
+                                             img_array = np.array(pil_image).astype(np.float32) / 255.0
+                                             img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                                             image_tensors.append(img_tensor)
+                                             found_image = True
+                                         except Exception as e:
+                                             print(f"Error processing inline image data in candidate: {e}")
+                                             # Fallback: Maybe it WAS base64 encoded bytes?
+                                             try:
+                                                 if isinstance(img_data, bytes):
+                                                     img_bytes = base64.b64decode(img_data)
+                                                     pil_image = Image.open(BytesIO(img_bytes)).convert("RGB")
+                                                     img_array = np.array(pil_image).astype(np.float32) / 255.0
+                                                     img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                                                     image_tensors.append(img_tensor)
+                                                     found_image = True
+                                             except Exception as e2:
+                                                  pass # Fallback failed
+
+                                    # Only try as_image if we haven't found one yet for this part
+                                    if not found_image and hasattr(part, 'as_image'):
+                                         try:
+                                             pil_img = part.as_image()
+                                             if pil_img:
+                                                 if not isinstance(pil_img, Image.Image):
+                                                      try: pil_img = Image.open(BytesIO(pil_img))
+                                                      except: pass
+                                                 
+                                                 if isinstance(pil_img, Image.Image):
+                                                      pil_img = pil_img.convert("RGB")
+                                                      img_array = np.array(pil_img).astype(np.float32) / 255.0
+                                                      img_tensor = torch.from_numpy(img_array).unsqueeze(0)
+                                                      image_tensors.append(img_tensor)
+                                         except Exception as e:
+                                              print(f"Error checking as_image(): {e}")
+
+                if is_image_model and not image_tensors and not output_text:
+                     # Return a dummy black image to prevent ComfyUI crash
+                     dummy_tensor = torch.zeros((1, 512, 512, 3), dtype=torch.float32)
+                     return ("No image generated. Check console for details.", dummy_tensor)
+
+                final_image_output = torch.cat(image_tensors, dim=0) if image_tensors else None
+                
+                # Double check return type safety
+                if final_image_output is None and is_image_model:
+                     return (output_text, torch.zeros((1, 512, 512, 3), dtype=torch.float32))
+
+                if final_image_output is None:
+                     final_image_output = torch.zeros((1, 64, 64, 3), dtype=torch.float32)
+
+                return (output_text, final_image_output)
+
             except Exception as e:
-                if "support" in str(e) or "Image generation is not available" in str(e):
-                    if console_log:
-                        print("Gemini model does not support image output. Falling back to text-only.")
-                    response = client.models.generate_content(
-                        model=model_value,
-                        contents=contents,
-                        config=types.GenerateContentConfig(
-                            response_modalities=["Text"],
-                            seed=seed,
-                            max_output_tokens=settings.get("max_output_tokens", 1024),
-                            temperature=settings.get("temperature", 0.8),
-                            top_p=settings.get("top_p", 0.95),
-                            top_k=settings.get("top_k", 40)
-                        ),
-                    )
-                else:
-                    raise e
-
-            # Parse the response: concatenate all text parts and load any image part.
-            output_text = ""
-            output_image = None
-            img_tensor = None
-
-            if response.candidates and response.candidates[0].content and response.candidates[0].content.parts:
-                for part in response.candidates[0].content.parts:
-                    if part.text is not None:
-                        output_text += part.text
-                    elif part.inline_data is not None:
-                        output_image = Image.open(BytesIO(part.inline_data.data))
-            else:
-                # Handle cases where there's no content, maybe due to safety filters
-                output_text = "Error: No content generated. This might be due to safety filters or an empty response from the model."
-                if hasattr(response, 'prompt_feedback') and response.prompt_feedback:
-                    output_text += f"\nPrompt Feedback: {response.prompt_feedback}"
-                if console_log:
-                    print(f"\033[91m!!! Polymath Gemini Error !!!\033[0m\n{output_text}")
-
-            if output_image is not None:
-                img_array = np.array(output_image).astype(np.float32) / 255.0
-                img_tensor = torch.from_numpy(img_array)
-                if img_tensor.dim() == 3:
-                    img_tensor = img_tensor.unsqueeze(0)
-
-            return (output_text, img_tensor if img_tensor is not None else "")
+                error_msg = f"Gemini API Error: {e}"
+                print(f"\033[91m!!! Polymath Gemini Error !!!\033[0m\n{error_msg}")
+                # Return dummy tensor on error
+                return (error_msg, torch.zeros((1, 64, 64, 3), dtype=torch.float32))
 
         # Fallback to Ollama API
         else:
