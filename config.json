@@ -40,7 +40,8 @@
       "Gemini 1.5 Flash": "gemini-1.5-flash",
       "Imagen 3": "imagen-3.0-generate-002",
       "Gemini 3 Image": "gemini-3.0-image",
-      "Nano Banana Pro": "gemini-3-pro-image-preview"
+      "Nano Banana Pro": "gemini-3-pro-image-preview",
+      "Nano Banana 2": "gemini-3.1-flash-image-preview"
     }
   }
 ]
