@@ -723,7 +723,17 @@ class Polymath:
                     print("Error reading custom instruction file:", e)
             if keep_context and self.chat_history:
                 messages.extend(self.chat_history)
-            messages.append({"role": "user", "content": prompt})
+            if b64:
+                imgs = b64 if isinstance(b64, list) else [b64]
+                user_content = [{"type": "text", "text": prompt}]
+                for img in imgs:
+                    user_content.append({
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/png;base64,{img}"}
+                    })
+                messages.append({"role": "user", "content": user_content})
+            else:
+                messages.append({"role": "user", "content": prompt})
             completion = client.chat.completions.create(
                 model=model_value,
                 messages=messages,
