@@ -16,11 +16,8 @@
   {
     "baseurl": "https://api.x.ai/v1",
     "models": {
-      "Grok 2 Vision": "grok-2-vision-1212",
-      "Grok 2 Image": "grok-2-image-1212",
-      "Grok 2": "grok-2-1212",
-      "Grok 3 Mini": "grok-3-mini-beta",
-      "Grok 3": "grok-3-beta"
+      "Grok 4.5": "grok-4.5",
+      "Grok 4.3": "grok-4.3"
     }
   },
   {
